@@ -2,57 +2,78 @@
 <html lang="km">
 <head>
   <meta charset="UTF-8">
-  <!-- កូដនេះជួយឱ្យវាដើរដូច Mobile App ១០០% លើទូរសព្ទ (មិនអាច Zoom បានផ្តេសផ្តាស) -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ប្រព័ន្ធគ្រូបង្រៀន - ពិនិត្យការបង់ប្រាក់</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Muol+Light&family=Khmer+OS+Battambang&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Khmer OS Battambang', sans-serif; background-color: #f8fafc; }
+    body { font-family: 'Khmer OS Battambang', sans-serif; background-color: #f1f5f9; }
     .font-muol { font-family: 'Khmer OS Muol Light', sans-serif; }
   </style>
 </head>
 <body class="text-slate-800 pb-10">
 
-  <!-- ផ្នែកក្បាល (Header App) -->
-  <div class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-10 flex items-center justify-between">
+  <!-- ផ្នែកក្បាល -->
+  <div class="bg-blue-700 text-white p-4 shadow-md sticky top-0 z-10 flex items-center justify-between">
     <div class="flex items-center gap-3">
-      <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl">🏫</div>
+      <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl shadow-inner">🏫</div>
       <div>
         <h1 class="font-muol text-[13px] tracking-wide">គណនីគ្រូបង្រៀន</h1>
         <p class="text-[10px] text-blue-100 font-semibold">ពិនិត្យទិន្នន័យ (Read-Only)</p>
       </div>
     </div>
-    <button onclick="fetchData()" class="p-2 bg-white/10 rounded-full active:bg-white/20 transition">🔄</button>
+    <button onclick="fetchData()" class="p-2 bg-white/20 hover:bg-white/30 rounded-full transition shadow-sm">🔄</button>
   </div>
 
   <div class="p-4">
     <!-- ផ្នែកជ្រើសរើសថ្នាក់រៀន -->
-    <div class="mb-5 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
-      <label class="text-xs font-bold text-slate-600 block mb-2">តើលោកគ្រូ/អ្នកគ្រូបង្រៀនថ្នាក់ណា?</label>
-      <select id="classSelector" onchange="renderClassData()" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 text-sm font-bold text-blue-800 outline-none focus:border-blue-500 transition">
+    <div class="mb-5 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+      <label class="text-xs font-bold text-slate-600 block mb-2">ជ្រើសរើសថ្នាក់រៀនរបស់អ្នក៖</label>
+      <select id="classSelector" onchange="renderClassData()" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 text-sm font-bold text-blue-800 outline-none focus:border-blue-500 transition shadow-inner">
         <option value="">⏳ កំពុងភ្ជាប់ទិន្នន័យសាលា...</option>
       </select>
     </div>
 
-    <!-- របាយការណ៍សង្ខេប (Summary Cards) -->
+    <!-- របាយការណ៍សង្ខេប (6 Cards) -->
     <div class="grid grid-cols-2 gap-3 mb-5">
-      <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-4 rounded-2xl shadow-sm">
-        <p class="text-[10px] opacity-90 font-semibold">សិស្សបានបង់រួច (បង់ដាច់)</p>
-        <h3 id="paidCount" class="text-xl font-bold mt-1">0 នាក់</h3>
-        <p id="paidAmount" class="text-xs mt-1 bg-black/10 inline-block px-2 py-0.5 rounded-md">0 ៛</p>
+      <!-- កាតទី១៖ សិស្សសរុប -->
+      <div class="bg-blue-500 text-white p-3 rounded-xl shadow-sm border border-blue-600">
+        <p class="text-[10px] opacity-90 font-semibold tracking-wider">👥 សិស្សសរុប</p>
+        <h3 id="totalStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
       </div>
-      <div class="bg-gradient-to-br from-rose-400 to-rose-600 text-white p-4 rounded-2xl shadow-sm">
-        <p class="text-[10px] opacity-90 font-semibold">សិស្សនៅជំពាក់ប្រាក់</p>
+      <!-- កាតទី២៖ សិស្សស្រី -->
+      <div class="bg-pink-500 text-white p-3 rounded-xl shadow-sm border border-pink-600">
+        <p class="text-[10px] opacity-90 font-semibold tracking-wider">👧 សិស្សស្រី</p>
+        <h3 id="femaleStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
+      </div>
+      <!-- កាតទី៣៖ បង់ដាច់ -->
+      <div class="bg-emerald-500 text-white p-3 rounded-xl shadow-sm border border-emerald-600">
+        <p class="text-[10px] opacity-90 font-semibold tracking-wider">✅ បានបង់ដាច់</p>
+        <h3 id="paidCount" class="text-xl font-bold mt-1">0 នាក់</h3>
+      </div>
+      <!-- កាតទី៤៖ ជំពាក់ -->
+      <div class="bg-rose-500 text-white p-3 rounded-xl shadow-sm border border-rose-600">
+        <p class="text-[10px] opacity-90 font-semibold tracking-wider">⚠️ ជំពាក់</p>
         <h3 id="pendingCount" class="text-xl font-bold mt-1">0 នាក់</h3>
-        <p id="pendingAmount" class="text-xs mt-1 bg-black/10 inline-block px-2 py-0.5 rounded-md">0 ៛</p>
+      </div>
+      <!-- កាតទី៥៖ ប្រមូលបាន -->
+      <div class="bg-teal-600 text-white p-3 rounded-xl shadow-sm border border-teal-700">
+        <p class="text-[10px] opacity-90 font-semibold tracking-wider">💰 ថវិកាប្រមូលបាន</p>
+        <h3 id="totalCollected" class="text-sm font-bold mt-1">0 ៛</h3>
+      </div>
+      <!-- កាតទី៦៖ នៅខ្វះ -->
+      <div class="bg-orange-500 text-white p-3 rounded-xl shadow-sm border border-orange-600">
+        <p class="text-[10px] opacity-90 font-semibold tracking-wider">💵 ថវិកានៅខ្វះ</p>
+        <h3 id="totalRemaining" class="text-sm font-bold mt-1">0 ៛</h3>
       </div>
     </div>
 
-    <!-- បញ្ជីឈ្មោះសិស្ស -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <div class="p-3 border-b border-slate-100 bg-slate-50">
-        <h2 class="text-xs font-bold text-slate-700">📋 បញ្ជីឈ្មោះសិស្សក្នុងថ្នាក់</h2>
+    <!-- បញ្ជីឈ្មោះសិស្ស និងការស្វែងរក -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
+        <h2 class="text-xs font-bold text-slate-700">📋 បញ្ជីឈ្មោះសិស្ស</h2>
+        <!-- ប្រអប់ Search -->
+        <input type="text" id="searchInput" oninput="filterStudents()" placeholder="🔍 ស្វែងរកឈ្មោះសិស្ស..." class="w-full p-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-400">
       </div>
       <div id="studentList" class="divide-y divide-slate-100">
         <div class="p-10 text-center text-slate-400 text-xs">សូមជ្រើសរើសថ្នាក់រៀននៅខាងលើសិន...</div>
@@ -65,6 +86,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyrRHSVooKBn6InZowdiqCBHjy6fPZCcfujzGz0FUyd67nmvzTifAkVAd5yw050uHGx/exec"; 
     
     let classData = {};
+    let currentStudents = []; // រក្សាទុកសិស្សក្នុងថ្នាក់ដែលបានរើស
 
     async function callBackend(action, data = {}) {
       try {
@@ -105,31 +127,59 @@
     function renderClassData() {
       const selectedClass = document.getElementById('classSelector').value;
       const listContainer = document.getElementById('studentList');
+      document.getElementById('searchInput').value = ""; // Reset Search
       
       if(!selectedClass) {
         listContainer.innerHTML = `<div class="p-10 text-center text-slate-400 text-xs">សូមជ្រើសរើសថ្នាក់រៀននៅខាងលើសិន...</div>`;
-        document.getElementById('paidCount').innerText = "0 នាក់"; document.getElementById('paidAmount').innerText = "0 ៛";
-        document.getElementById('pendingCount').innerText = "0 នាក់"; document.getElementById('pendingAmount').innerText = "0 ៛";
+        resetCards();
+        currentStudents = [];
         return;
       }
 
-      const students = classData[selectedClass];
-      let paidCount = 0, pendingCount = 0, paidTotal = 0, pendingTotal = 0;
+      currentStudents = classData[selectedClass];
+      
+      // គណនាស្ថិតិសម្រាប់ Cards ទាំង ៦
+      let tStu = 0, fStu = 0, paid = 0, pending = 0, collected = 0, remaining = 0;
+
+      currentStudents.forEach(stu => {
+        tStu++;
+        if(stu.gender === 'ស្រី' || stu.gender.toLowerCase() === 'female') fStu++;
+        collected += stu.paidAmt;
+        remaining += stu.remaining;
+        
+        if(stu.remaining === 0) paid++; else pending++;
+      });
+
+      // បញ្ចូលទិន្នន័យទៅក្នុង Cards
+      document.getElementById('totalStudents').innerText = tStu + " នាក់";
+      document.getElementById('femaleStudents').innerText = fStu + " នាក់";
+      document.getElementById('paidCount').innerText = paid + " នាក់";
+      document.getElementById('pendingCount').innerText = pending + " នាក់";
+      document.getElementById('totalCollected').innerText = collected.toLocaleString() + " ៛";
+      document.getElementById('totalRemaining').innerText = remaining.toLocaleString() + " ៛";
+
+      displayStudentList(currentStudents);
+    }
+
+    function displayStudentList(students) {
+      const listContainer = document.getElementById('studentList');
       let html = "";
 
-      students.forEach(stu => {
-        if(stu.remaining === 0) {
-          paidCount++; paidTotal += stu.paidAmt;
-        } else {
-          pendingCount++; pendingTotal += stu.remaining;
-        }
+      if(students.length === 0) {
+        listContainer.innerHTML = `<div class="p-6 text-center text-slate-400 text-xs">រកមិនឃើញសិស្សឈ្មោះនេះទេ!</div>`;
+        return;
+      }
 
-        const statusBadge = stu.remaining === 0 
+      students.forEach(stu => {
+        const isPaid = stu.remaining === 0;
+        const statusBadge = isPaid 
           ? `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">បានបង់</span>`
-          : `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold">ជំពាក់ ${stu.remaining.toLocaleString()}៛</span>`;
+          : `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold shadow-sm">ជំពាក់ ${stu.remaining.toLocaleString()}៛</span>`;
+          
+        const bgClass = isPaid ? "bg-white" : "bg-rose-50/30"; // លាបពណ៌ក្រហមព្រាលៗបើជំពាក់
 
         html += `
-          <div class="p-3.5 flex justify-between items-center bg-white active:bg-slate-50 transition">
+          <div class="p-3.5 flex justify-between items-center ${bgClass} hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
             <div>
               <p class="font-bold text-sm text-slate-800">${stu.name}</p>
               <p class="text-[10px] text-slate-500 mt-0.5">ភេទ៖ ${stu.gender} | កាលបរិច្ឆេទ៖ ${stu.date}</p>
@@ -142,13 +192,28 @@
       });
 
       listContainer.innerHTML = html;
-      document.getElementById('paidCount').innerText = paidCount + " នាក់";
-      document.getElementById('paidAmount').innerText = paidTotal.toLocaleString() + " ៛";
-      document.getElementById('pendingCount').innerText = pendingCount + " នាក់";
-      document.getElementById('pendingAmount').innerText = pendingTotal.toLocaleString() + " ៛";
     }
 
-    // ទាញទិន្នន័យដោយស្វ័យប្រវត្តិពេលបើក App
+    // មុខងារ Search
+    function filterStudents() {
+      const kw = document.getElementById('searchInput').value.toLowerCase().trim();
+      if(!kw) {
+        displayStudentList(currentStudents);
+        return;
+      }
+      const filtered = currentStudents.filter(s => s.name.toLowerCase().includes(kw));
+      displayStudentList(filtered);
+    }
+
+    function resetCards() {
+      document.getElementById('totalStudents').innerText = "0 នាក់";
+      document.getElementById('femaleStudents').innerText = "0 នាក់";
+      document.getElementById('paidCount').innerText = "0 នាក់";
+      document.getElementById('pendingCount').innerText = "0 នាក់";
+      document.getElementById('totalCollected').innerText = "0 ៛";
+      document.getElementById('totalRemaining').innerText = "0 ៛";
+    }
+
     window.onload = fetchData;
   </script>
 </body>
