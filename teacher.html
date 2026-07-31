@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8">
+  <!-- កូដនេះជួយឱ្យវាដើរដូច Mobile App ១០០% លើទូរសព្ទ (មិនអាច Zoom បានផ្តេសផ្តាស) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>ប្រព័ន្ធគ្រូបង្រៀន - ពិនិត្យការបង់ប្រាក់</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Khmer+OS+Muol+Light&family=Khmer+OS+Battambang&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Khmer OS Battambang', sans-serif; background-color: #f8fafc; }
+    .font-muol { font-family: 'Khmer OS Muol Light', sans-serif; }
+  </style>
+</head>
+<body class="text-slate-800 pb-10">
+
+  <!-- ផ្នែកក្បាល (Header App) -->
+  <div class="bg-blue-600 text-white p-4 shadow-md sticky top-0 z-10 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center text-xl">🏫</div>
+      <div>
+        <h1 class="font-muol text-[13px] tracking-wide">គណនីគ្រូបង្រៀន</h1>
+        <p class="text-[10px] text-blue-100 font-semibold">ពិនិត្យទិន្នន័យ (Read-Only)</p>
+      </div>
+    </div>
+    <button onclick="fetchData()" class="p-2 bg-white/10 rounded-full active:bg-white/20 transition">🔄</button>
+  </div>
+
+  <div class="p-4">
+    <!-- ផ្នែកជ្រើសរើសថ្នាក់រៀន -->
+    <div class="mb-5 bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+      <label class="text-xs font-bold text-slate-600 block mb-2">តើលោកគ្រូ/អ្នកគ្រូបង្រៀនថ្នាក់ណា?</label>
+      <select id="classSelector" onchange="renderClassData()" class="w-full p-3 border-2 border-slate-200 rounded-xl bg-slate-50 text-sm font-bold text-blue-800 outline-none focus:border-blue-500 transition">
+        <option value="">⏳ កំពុងភ្ជាប់ទិន្នន័យសាលា...</option>
+      </select>
+    </div>
+
+    <!-- របាយការណ៍សង្ខេប (Summary Cards) -->
+    <div class="grid grid-cols-2 gap-3 mb-5">
+      <div class="bg-gradient-to-br from-emerald-400 to-emerald-600 text-white p-4 rounded-2xl shadow-sm">
+        <p class="text-[10px] opacity-90 font-semibold">សិស្សបានបង់រួច (បង់ដាច់)</p>
+        <h3 id="paidCount" class="text-xl font-bold mt-1">0 នាក់</h3>
+        <p id="paidAmount" class="text-xs mt-1 bg-black/10 inline-block px-2 py-0.5 rounded-md">0 ៛</p>
+      </div>
+      <div class="bg-gradient-to-br from-rose-400 to-rose-600 text-white p-4 rounded-2xl shadow-sm">
+        <p class="text-[10px] opacity-90 font-semibold">សិស្សនៅជំពាក់ប្រាក់</p>
+        <h3 id="pendingCount" class="text-xl font-bold mt-1">0 នាក់</h3>
+        <p id="pendingAmount" class="text-xs mt-1 bg-black/10 inline-block px-2 py-0.5 rounded-md">0 ៛</p>
+      </div>
+    </div>
+
+    <!-- បញ្ជីឈ្មោះសិស្ស -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <div class="p-3 border-b border-slate-100 bg-slate-50">
+        <h2 class="text-xs font-bold text-slate-700">📋 បញ្ជីឈ្មោះសិស្សក្នុងថ្នាក់</h2>
+      </div>
+      <div id="studentList" class="divide-y divide-slate-100">
+        <div class="p-10 text-center text-slate-400 text-xs">សូមជ្រើសរើសថ្នាក់រៀននៅខាងលើសិន...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ⚠️ សូមប្តូរ URL ខាងក្រោមនេះទៅជា Web App URL របស់អ្នក!
+    const API_URL = "YOUR_GOOGLE_WEB_APP_URL_HERE"; 
+    
+    let classData = {};
+
+    async function callBackend(action, data = {}) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: action, data: data })
+        });
+        return await response.json();
+      } catch (err) {
+        alert("កំហុស៖ មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ!");
+        return null;
+      }
+    }
+
+    async function fetchData() {
+      document.getElementById('classSelector').innerHTML = `<option value="">⏳ កំពុងទាញយកទិន្នន័យ...</option>`;
+      const data = await callBackend("getClassMonitoringData");
+      if(data) {
+        classData = data;
+        populateClassDropdown();
+      }
+    }
+
+    function populateClassDropdown() {
+      const selector = document.getElementById('classSelector');
+      selector.innerHTML = `<option value="">-- សូមជ្រើសរើសថ្នាក់រៀន --</option>`;
+      const classes = Object.keys(classData).sort();
+      
+      if(classes.length === 0) {
+        selector.innerHTML = `<option value="">មិនទាន់មានទិន្នន័យសិស្សទេ</option>`;
+        return;
+      }
+      classes.forEach(c => {
+        selector.innerHTML += `<option value="${c}">ថ្នាក់រៀន៖ ${c}</option>`;
+      });
+    }
+
+    function renderClassData() {
+      const selectedClass = document.getElementById('classSelector').value;
+      const listContainer = document.getElementById('studentList');
+      
+      if(!selectedClass) {
+        listContainer.innerHTML = `<div class="p-10 text-center text-slate-400 text-xs">សូមជ្រើសរើសថ្នាក់រៀននៅខាងលើសិន...</div>`;
+        document.getElementById('paidCount').innerText = "0 នាក់"; document.getElementById('paidAmount').innerText = "0 ៛";
+        document.getElementById('pendingCount').innerText = "0 នាក់"; document.getElementById('pendingAmount').innerText = "0 ៛";
+        return;
+      }
+
+      const students = classData[selectedClass];
+      let paidCount = 0, pendingCount = 0, paidTotal = 0, pendingTotal = 0;
+      let html = "";
+
+      students.forEach(stu => {
+        if(stu.remaining === 0) {
+          paidCount++; paidTotal += stu.paidAmt;
+        } else {
+          pendingCount++; pendingTotal += stu.remaining;
+        }
+
+        const statusBadge = stu.remaining === 0 
+          ? `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">បានបង់</span>`
+          : `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold">ជំពាក់ ${stu.remaining.toLocaleString()}៛</span>`;
+
+        html += `
+          <div class="p-3.5 flex justify-between items-center bg-white active:bg-slate-50 transition">
+            <div>
+              <p class="font-bold text-sm text-slate-800">${stu.name}</p>
+              <p class="text-[10px] text-slate-500 mt-0.5">ភេទ៖ ${stu.gender} | កាលបរិច្ឆេទ៖ ${stu.date}</p>
+            </div>
+            <div class="text-right flex flex-col items-end">
+              ${statusBadge}
+              <p class="text-[10px] text-blue-600 font-semibold mt-1.5">បង់រួច៖ ${stu.paidAmt.toLocaleString()}៛</p>
+            </div>
+          </div>`;
+      });
+
+      listContainer.innerHTML = html;
+      document.getElementById('paidCount').innerText = paidCount + " នាក់";
+      document.getElementById('paidAmount').innerText = paidTotal.toLocaleString() + " ៛";
+      document.getElementById('pendingCount').innerText = pendingCount + " នាក់";
+      document.getElementById('pendingAmount').innerText = pendingTotal.toLocaleString() + " ៛";
+    }
+
+    // ទាញទិន្នន័យដោយស្វ័យប្រវត្តិពេលបើក App
+    window.onload = fetchData;
+  </script>
+</body>
+</html>
