@@ -26,6 +26,23 @@
   </div>
 
   <div class="p-4">
+    <!-- ផ្នែកទី១៖ របាយការណ៍ទូទាំងសាលា (School-wide Summary) -->
+    <div class="mb-6">
+      <h3 class="text-xs font-bold text-slate-500 mb-2 px-1 uppercase tracking-wider">🏢 របាយការណ៍ទូទាំងសាលា</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <!-- កាតសិស្សបានបង់ទូទាំងសាលា -->
+        <div class="bg-indigo-600 text-white p-3 rounded-xl shadow-sm border border-indigo-700">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">👨‍🎓 សិស្សបានបង់ (ទូទាំងសាលា)</p>
+          <h3 id="schoolTotalPaidStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
+        </div>
+        <!-- កាតចំណូលសាលាសរុប -->
+        <div class="bg-violet-600 text-white p-3 rounded-xl shadow-sm border border-violet-700">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">💎 ចំណូលសាលាសរុប</p>
+          <h3 id="schoolTotalRevenue" class="text-[13px] font-bold mt-1 leading-tight">0 ៛</h3>
+        </div>
+      </div>
+    </div>
+
     <!-- ផ្នែកជ្រើសរើសថ្នាក់រៀន -->
     <div class="mb-5 bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
       <label class="text-xs font-bold text-slate-600 block mb-2">ជ្រើសរើសថ្នាក់រៀនរបស់អ្នក៖</label>
@@ -34,37 +51,34 @@
       </select>
     </div>
 
-    <!-- របាយការណ៍សង្ខេប (6 Cards) -->
-    <div class="grid grid-cols-2 gap-3 mb-5">
-      <!-- កាតទី១៖ សិស្សសរុប -->
-      <div class="bg-blue-500 text-white p-3 rounded-xl shadow-sm border border-blue-600">
-        <p class="text-[10px] opacity-90 font-semibold tracking-wider">👥 សិស្សសរុប</p>
-        <h3 id="totalStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
-      </div>
-      <!-- កាតទី២៖ សិស្សស្រី -->
-      <div class="bg-pink-500 text-white p-3 rounded-xl shadow-sm border border-pink-600">
-        <p class="text-[10px] opacity-90 font-semibold tracking-wider">👧 សិស្សស្រី</p>
-        <h3 id="femaleStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
-      </div>
-      <!-- កាតទី៣៖ បង់ដាច់ -->
-      <div class="bg-emerald-500 text-white p-3 rounded-xl shadow-sm border border-emerald-600">
-        <p class="text-[10px] opacity-90 font-semibold tracking-wider">✅ បានបង់ដាច់</p>
-        <h3 id="paidCount" class="text-xl font-bold mt-1">0 នាក់</h3>
-      </div>
-      <!-- កាតទី៤៖ ជំពាក់ -->
-      <div class="bg-rose-500 text-white p-3 rounded-xl shadow-sm border border-rose-600">
-        <p class="text-[10px] opacity-90 font-semibold tracking-wider">⚠️ ជំពាក់</p>
-        <h3 id="pendingCount" class="text-xl font-bold mt-1">0 នាក់</h3>
-      </div>
-      <!-- កាតទី៥៖ ប្រមូលបាន -->
-      <div class="bg-teal-600 text-white p-3 rounded-xl shadow-sm border border-teal-700">
-        <p class="text-[10px] opacity-90 font-semibold tracking-wider">💰 ថវិកាប្រមូលបាន</p>
-        <h3 id="totalCollected" class="text-sm font-bold mt-1">0 ៛</h3>
-      </div>
-      <!-- កាតទី៦៖ នៅខ្វះ -->
-      <div class="bg-orange-500 text-white p-3 rounded-xl shadow-sm border border-orange-600">
-        <p class="text-[10px] opacity-90 font-semibold tracking-wider">💵 ថវិកានៅខ្វះ</p>
-        <h3 id="totalRemaining" class="text-sm font-bold mt-1">0 ៛</h3>
+    <!-- ផ្នែកទី២៖ របាយការណ៍ប្រចាំថ្នាក់ (Class Summary) -->
+    <div class="mb-5">
+      <h3 class="text-xs font-bold text-slate-500 mb-2 px-1 uppercase tracking-wider">📊 របាយការណ៍ប្រចាំថ្នាក់</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-blue-500 text-white p-3 rounded-xl shadow-sm border border-blue-600">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">👥 សិស្សសរុប</p>
+          <h3 id="totalStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
+        </div>
+        <div class="bg-pink-500 text-white p-3 rounded-xl shadow-sm border border-pink-600">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">👧 សិស្សស្រី</p>
+          <h3 id="femaleStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
+        </div>
+        <div class="bg-emerald-500 text-white p-3 rounded-xl shadow-sm border border-emerald-600">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">✅ បានបង់ដាច់</p>
+          <h3 id="paidCount" class="text-xl font-bold mt-1">0 នាក់</h3>
+        </div>
+        <div class="bg-rose-500 text-white p-3 rounded-xl shadow-sm border border-rose-600">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">⚠️ ជំពាក់</p>
+          <h3 id="pendingCount" class="text-xl font-bold mt-1">0 នាក់</h3>
+        </div>
+        <div class="bg-teal-600 text-white p-3 rounded-xl shadow-sm border border-teal-700">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">💰 ថវិកាប្រមូលបាន</p>
+          <h3 id="totalCollected" class="text-[13px] font-bold mt-1 leading-tight">0 ៛</h3>
+        </div>
+        <div class="bg-orange-500 text-white p-3 rounded-xl shadow-sm border border-orange-600">
+          <p class="text-[10px] opacity-90 font-semibold tracking-wider">💵 ថវិកានៅខ្វះ</p>
+          <h3 id="totalRemaining" class="text-[13px] font-bold mt-1 leading-tight">0 ៛</h3>
+        </div>
       </div>
     </div>
 
@@ -72,7 +86,6 @@
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       <div class="p-3 border-b border-slate-200 bg-slate-50 flex flex-col gap-3">
         <h2 class="text-xs font-bold text-slate-700">📋 បញ្ជីឈ្មោះសិស្ស</h2>
-        <!-- ប្រអប់ Search -->
         <input type="text" id="searchInput" oninput="filterStudents()" placeholder="🔍 ស្វែងរកឈ្មោះសិស្ស..." class="w-full p-2 text-xs border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-400">
       </div>
       <div id="studentList" class="divide-y divide-slate-100">
@@ -86,7 +99,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyrRHSVooKBn6InZowdiqCBHjy6fPZCcfujzGz0FUyd67nmvzTifAkVAd5yw050uHGx/exec"; 
     
     let classData = {};
-    let currentStudents = []; // រក្សាទុកសិស្សក្នុងថ្នាក់ដែលបានរើស
+    let currentStudents = []; 
 
     async function callBackend(action, data = {}) {
       try {
@@ -106,8 +119,28 @@
       const data = await callBackend("getClassMonitoringData");
       if(data) {
         classData = data;
+        calculateSchoolWideTotals(classData);
         populateClassDropdown();
       }
+    }
+
+    // មុខងារគណនាទិន្នន័យទូទាំងសាលាថ្មី (School-wide calculation)
+    function calculateSchoolWideTotals(data) {
+      let grandTotalPaidStudents = 0;
+      let grandTotalRevenue = 0;
+
+      for (const className in data) {
+        const students = data[className];
+        students.forEach(stu => {
+          if (stu.paidAmt > 0) {
+            grandTotalPaidStudents++; // រាប់សិស្សដែលបានបង់លុយរួច (ទោះតិច ឬច្រើន)
+            grandTotalRevenue += stu.paidAmt;
+          }
+        });
+      }
+
+      document.getElementById('schoolTotalPaidStudents').innerText = grandTotalPaidStudents + " នាក់";
+      document.getElementById('schoolTotalRevenue').innerText = grandTotalRevenue.toLocaleString() + " ៛";
     }
 
     function populateClassDropdown() {
@@ -127,7 +160,7 @@
     function renderClassData() {
       const selectedClass = document.getElementById('classSelector').value;
       const listContainer = document.getElementById('studentList');
-      document.getElementById('searchInput').value = ""; // Reset Search
+      document.getElementById('searchInput').value = ""; 
       
       if(!selectedClass) {
         listContainer.innerHTML = `<div class="p-10 text-center text-slate-400 text-xs">សូមជ្រើសរើសថ្នាក់រៀននៅខាងលើសិន...</div>`;
@@ -138,7 +171,6 @@
 
       currentStudents = classData[selectedClass];
       
-      // គណនាស្ថិតិសម្រាប់ Cards ទាំង ៦
       let tStu = 0, fStu = 0, paid = 0, pending = 0, collected = 0, remaining = 0;
 
       currentStudents.forEach(stu => {
@@ -150,7 +182,6 @@
         if(stu.remaining === 0) paid++; else pending++;
       });
 
-      // បញ្ចូលទិន្នន័យទៅក្នុង Cards
       document.getElementById('totalStudents').innerText = tStu + " នាក់";
       document.getElementById('femaleStudents').innerText = fStu + " នាក់";
       document.getElementById('paidCount').innerText = paid + " នាក់";
@@ -176,7 +207,7 @@
           ? `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">បានបង់</span>`
           : `<span class="bg-rose-100 text-rose-700 px-2 py-0.5 rounded text-[10px] font-bold shadow-sm">ជំពាក់ ${stu.remaining.toLocaleString()}៛</span>`;
           
-        const bgClass = isPaid ? "bg-white" : "bg-rose-50/30"; // លាបពណ៌ក្រហមព្រាលៗបើជំពាក់
+        const bgClass = isPaid ? "bg-white" : "bg-rose-50/30"; 
 
         html += `
           <div class="p-3.5 flex justify-between items-center ${bgClass} hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
@@ -194,7 +225,6 @@
       listContainer.innerHTML = html;
     }
 
-    // មុខងារ Search
     function filterStudents() {
       const kw = document.getElementById('searchInput').value.toLowerCase().trim();
       if(!kw) {
