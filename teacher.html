@@ -205,8 +205,9 @@
         // រៀបចំប៊ូតុងទាក់ទង
         let contactBtns = "";
         if (stu.phone) {
-          let telCode = stu.phone;
-          if(telCode.startsWith('0')) telCode = '+855' + telCode.substring(1); // បំប្លែងលេខ 0 ទៅជា +855 សម្រាប់ Telegram
+          // បំប្លែងជាអក្សរ រួចលុបដកឃ្លា ឬសញ្ញាដក (-) ចោលទាំងអស់
+          let telCode = String(stu.phone).replace(/[\s\-]/g, ''); 
+          if(telCode.startsWith('0')) telCode = '+855' + telCode.substring(1);
 
           contactBtns = `
             <div class="flex gap-2 mt-2">
