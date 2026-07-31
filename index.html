@@ -151,6 +151,12 @@
               <input type="text" id="stuName" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm outline-none" placeholder="ឧ. ផា សុភ័ក្ត្រ">
             </div>
 
+            <!-- ប្រអប់បន្ថែមថ្មី៖ លេខទូរសព្ទ -->
+            <div>
+              <label class="text-xs font-bold text-gray-600">លេខទូរសព្ទមាតាបិតា៖</label>
+              <input type="text" id="stuPhone" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm outline-none" placeholder="ឧ. 012 345 678">
+            </div>
+
             <div class="flex gap-2">
               <div class="flex-1">
                 <label class="text-xs font-bold text-gray-600">ភេទ៖</label>
@@ -161,7 +167,7 @@
               </div>
               <div class="flex-1">
                 <label class="text-xs font-bold text-gray-600">ថ្នាក់រៀន៖</label>
-                <input type="text" id="stuClass" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm outline-none" placeholder="ឧ. ថ្នាក់ទី៥">
+                <input type="text" id="stuClass" class="w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 text-sm outline-none" placeholder="ឧ. Grade 1A">
               </div>
             </div>
             
@@ -528,6 +534,7 @@
         document.getElementById('editStudentId').value = stu.id;
         document.getElementById('schoolYear').value = stu.year;
         document.getElementById('stuName').value = stu.name;
+        document.getElementById('stuPhone').value = stu.phone || ""; 
         document.getElementById('gender').value = stu.gender;
         document.getElementById('stuClass').value = stu.class;
         document.getElementById('payType').value = stu.type;
@@ -546,6 +553,7 @@
       function cancelEditMode() {
         document.getElementById('editStudentId').value = "";
         document.getElementById('stuName').value = "";
+        document.getElementById('stuPhone').value = "";
         document.getElementById('stuClass').value = "";
         document.getElementById('paymentDetailsArea').style.display = 'block';
         document.getElementById('formTitle').innerHTML = "<span>📝 ចុះឈ្មោះ និងបង់ប្រាក់</span>";
@@ -558,6 +566,7 @@
       async function submitStudent() {
         var id = document.getElementById('editStudentId').value;
         var name = document.getElementById('stuName').value;
+        var phone = document.getElementById('stuPhone').value.trim();
         var gender = document.getElementById('gender').value;
         var sClass = document.getElementById('stuClass').value;
         var sYear = document.getElementById('schoolYear').value;
@@ -574,7 +583,7 @@
 
         if(id) {
           const res = await callBackend("updateStudentInfo", {
-            id: id, name: name, gender: gender, sClass: sClass, sYear: sYear, type: type, note: note, fullFee: fullFee, amt: amt
+            id: id, name: name, gender: gender, sClass: sClass, sYear: sYear, type: type, note: note, fullFee: fullFee, amt: amt, phone: phone
           });
           msgDiv.className = "mt-4 p-3 rounded-lg text-center text-xs font-bold bg-green-500 text-white block";
           msgDiv.innerText = res;
@@ -585,12 +594,13 @@
           var cashier = document.getElementById('cashierName').value.trim();
           
           const newId = await callBackend("addNewStudent", {
-            name: name, gender: gender, sClass: sClass, type: type, amt: amt, note: note, sYear: sYear, fullFee: fullFee, method: method, cashier: cashier
+            name: name, gender: gender, sClass: sClass, type: type, amt: amt, note: note, sYear: sYear, fullFee: fullFee, method: method, cashier: cashier, phone: phone
           });
           
           msgDiv.className = "mt-4 p-3 rounded-lg text-center text-xs font-bold bg-green-500 text-white block";
           msgDiv.innerHTML = 'រក្សាទុកជោគជ័យ!<br>លេខកូដ៖ ' + newId;
           document.getElementById('stuName').value = '';
+          document.getElementById('stuPhone').value = '';
           document.getElementById('stuClass').value = '';
           checkSpecialCondition();
           updateDashboard();
