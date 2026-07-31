@@ -26,16 +26,14 @@
   </div>
 
   <div class="p-4">
-    <!-- ផ្នែកទី១៖ របាយការណ៍ទូទាំងសាលា (School-wide Summary) -->
+    <!-- ផ្នែកទី១៖ របាយការណ៍ទូទាំងសាលា -->
     <div class="mb-6">
       <h3 class="text-xs font-bold text-slate-500 mb-2 px-1 uppercase tracking-wider">🏢 របាយការណ៍ទូទាំងសាលា</h3>
       <div class="grid grid-cols-2 gap-3">
-        <!-- កាតសិស្សបានបង់ទូទាំងសាលា -->
         <div class="bg-indigo-600 text-white p-3 rounded-xl shadow-sm border border-indigo-700">
           <p class="text-[10px] opacity-90 font-semibold tracking-wider">👨‍🎓 សិស្សបានបង់ (ទូទាំងសាលា)</p>
           <h3 id="schoolTotalPaidStudents" class="text-xl font-bold mt-1">0 នាក់</h3>
         </div>
-        <!-- កាតចំណូលសាលាសរុប -->
         <div class="bg-violet-600 text-white p-3 rounded-xl shadow-sm border border-violet-700">
           <p class="text-[10px] opacity-90 font-semibold tracking-wider">💎 ចំណូលសាលាសរុប</p>
           <h3 id="schoolTotalRevenue" class="text-[13px] font-bold mt-1 leading-tight">0 ៛</h3>
@@ -51,7 +49,7 @@
       </select>
     </div>
 
-    <!-- ផ្នែកទី២៖ របាយការណ៍ប្រចាំថ្នាក់ (Class Summary) -->
+    <!-- ផ្នែកទី២៖ របាយការណ៍ប្រចាំថ្នាក់ -->
     <div class="mb-5">
       <h3 class="text-xs font-bold text-slate-500 mb-2 px-1 uppercase tracking-wider">📊 របាយការណ៍ប្រចាំថ្នាក់</h3>
       <div class="grid grid-cols-2 gap-3">
@@ -124,21 +122,18 @@
       }
     }
 
-    // មុខងារគណនាទិន្នន័យទូទាំងសាលាថ្មី (School-wide calculation)
     function calculateSchoolWideTotals(data) {
       let grandTotalPaidStudents = 0;
       let grandTotalRevenue = 0;
-
       for (const className in data) {
         const students = data[className];
         students.forEach(stu => {
           if (stu.paidAmt > 0) {
-            grandTotalPaidStudents++; // រាប់សិស្សដែលបានបង់លុយរួច (ទោះតិច ឬច្រើន)
+            grandTotalPaidStudents++; 
             grandTotalRevenue += stu.paidAmt;
           }
         });
       }
-
       document.getElementById('schoolTotalPaidStudents').innerText = grandTotalPaidStudents + " នាក់";
       document.getElementById('schoolTotalRevenue').innerText = grandTotalRevenue.toLocaleString() + " ៛";
     }
@@ -170,7 +165,6 @@
       }
 
       currentStudents = classData[selectedClass];
-      
       let tStu = 0, fStu = 0, paid = 0, pending = 0, collected = 0, remaining = 0;
 
       currentStudents.forEach(stu => {
@@ -178,7 +172,6 @@
         if(stu.gender === 'ស្រី' || stu.gender.toLowerCase() === 'female') fStu++;
         collected += stu.paidAmt;
         remaining += stu.remaining;
-        
         if(stu.remaining === 0) paid++; else pending++;
       });
 
@@ -209,11 +202,32 @@
           
         const bgClass = isPaid ? "bg-white" : "bg-rose-50/30"; 
 
+        // រៀបចំប៊ូតុងទាក់ទង
+        let contactBtns = "";
+        if (stu.phone) {
+          let telCode = stu.phone;
+          if(telCode.startsWith('0')) telCode = '+855' + telCode.substring(1); // បំប្លែងលេខ 0 ទៅជា +855 សម្រាប់ Telegram
+
+          contactBtns = `
+            <div class="flex gap-2 mt-2">
+              <a href="tel:${stu.phone}" class="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-[10px] font-semibold transition shadow-sm">
+                📞 ហៅចេញ
+              </a>
+              <a href="https://t.me/${telCode}" target="_blank" class="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-semibold transition shadow-sm">
+                ✈️ Telegram
+              </a>
+            </div>
+          `;
+        } else {
+          contactBtns = `<p class="text-[9px] text-slate-400 mt-2 italic">គ្មានលេខទូរសព្ទទេ</p>`;
+        }
+
         html += `
-          <div class="p-3.5 flex justify-between items-center ${bgClass} hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
+          <div class="p-3.5 flex justify-between items-start ${bgClass} hover:bg-slate-50 transition border-b border-slate-100 last:border-0">
             <div>
               <p class="font-bold text-sm text-slate-800">${stu.name}</p>
               <p class="text-[10px] text-slate-500 mt-0.5">ភេទ៖ ${stu.gender} | កាលបរិច្ឆេទ៖ ${stu.date}</p>
+              ${contactBtns}
             </div>
             <div class="text-right flex flex-col items-end">
               ${statusBadge}
