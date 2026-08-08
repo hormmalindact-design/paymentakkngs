@@ -7,33 +7,35 @@ var RECEIPT_FOLDER_ID = "1nOrIud1_6VP6VuZ6nbflAu56J1K3iJo_";
 
 function doGet(e) {
   // -------------------------------------------------------------
-  // ផ្នែកទី១៖ នេះគឺជា API សម្រាប់ Vercel ហៅយកទិន្នន័យ
+  // ផ្នែកទី១៖ នេះគឺជា API សម្រាប់ Vercel/GitHub ហៅយកទិន្នន័យ
   // -------------------------------------------------------------
   if (e.parameter.action) {
     var action = e.parameter.action;
+    var p = e.parameter;
     var result = {};
     
     try {
-      if (action === "getClassMonitoringData") {
-        result = getClassMonitoringData();
-      } else if (action === "getTeacherDashboardData") {
-        result = getTeacherDashboardData();
-      } else if (action === "getDashboardData") {
-        result = getDashboardData();
-      }
+      if (action === "verifyLogin") result = verifyLogin(p.user, p.pass);
+      else if (action === "getDashboardData") result = getDashboardData();
+      else if (action === "searchStudentsGlobal") result = searchStudentsGlobal(p.keyword);
+      else if (action === "addNewStudent") result = addNewStudent(p.name, p.gender, p.sClass, p.phone, p.type, p.amt, p.note, p.sYear, p.fullFee, p.method, p.cashier);
+      else if (action === "updateStudentInfo") result = updateStudentInfo(p.id, p.name, p.gender, p.sClass, p.phone, p.sYear, p.type, p.note, p.fullFee, p.amt);
+      else if (action === "deleteStudentRow") result = deleteStudentRow(p.id, p.cashierName);
+      else if (action === "collectSecondPayment") result = collectSecondPayment(p.id, p.amt, p.method, p.cashier);
+      else if (action === "getSemester2PendingData") result = getSemester2PendingData();
+      else if (action === "getDailyClosingReport") result = getDailyClosingReport();
+      else if (action === "getMonthlyClosingReport") result = getMonthlyClosingReport();
+      else if (action === "getClassMonitoringData") result = getClassMonitoringData();
+      else if (action === "getTeacherDashboardData") result = getTeacherDashboardData();
       
-      // បញ្ជូនទិន្នន័យទៅ Vercel វិញជាទម្រង់ JSON
-      return ContentService.createTextOutput(JSON.stringify(result))
-        .setMimeType(ContentService.MimeType.JSON);
-        
+      return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
     } catch (error) {
-      return ContentService.createTextOutput(JSON.stringify({error: error.message}))
-        .setMimeType(ContentService.MimeType.JSON);
+      return ContentService.createTextOutput(JSON.stringify({error: true, message: error.message})).setMimeType(ContentService.MimeType.JSON);
     }
   }
 
   // -------------------------------------------------------------
-  // ផ្នែកទី២៖ នេះគឺជាកូដចាស់សម្រាប់បង្ហាញផ្ទាំង HTML ពេលបើកផ្ទាល់ពី Apps Script
+  // ផ្នែកទី២៖ នេះគឺជាកូដសម្រាប់បង្ហាញផ្ទាំង HTML ធម្មតា
   // -------------------------------------------------------------
   var page = e.parameter.page || 'index'; 
   
@@ -42,24 +44,20 @@ function doGet(e) {
       .setTitle('តុបេឡា (Cashier) - សាលាបឋមសិក្សាសម្តេចព្រះរាជអគ្គមហេសី')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-      
   } else if (page === 'teacher') {
     return HtmlService.createHtmlOutputFromFile('Teacher')
       .setTitle('ប្រព័ន្ធគ្រូបង្រៀន (Teacher) - ពិនិត្យការបង់ប្រាក់')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-      
   } else if (page === 'reminder') {
     return HtmlService.createHtmlOutputFromFile('Reminder')
       .setTitle('របាយការណ៍សិស្សជំពាក់ប្រាក់ឆមាសទី២')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-      
   } else if (page === 'semester2') {
     return HtmlService.createHtmlOutputFromFile('Semester2')
       .setTitle('របាយការណ៍ឆមាសទី២ - សាលាបឋមសិក្សាសម្តេចព្រះរាជអគ្គមហេសី')
       .addMetaTag('viewport', 'width=device-width, initial-scale=1')
       .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
-      
   } else {
     return HtmlService.createHtmlOutputFromFile('Index')
       .setTitle('ផ្ទាំងគ្រប់គ្រងរដ្ឋបាល (Admin Dashboard)')
@@ -68,7 +66,6 @@ function doGet(e) {
   }
 }
 
-// ... សូមបន្តរក្សាមុខងារផ្សេងៗទៀត (addNewStudent, getDashboardData...) នៅទីនេះដដែល ...
 function addNewStudent(studentName, gender, studentClass, phone, paymentType, amount, otherNote, schoolYear, fullYearFeeInput, paymentMethod, cashierName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Students_Payment");
@@ -89,7 +86,6 @@ function addNewStudent(studentName, gender, studentClass, phone, paymentType, am
   var remainingBalance = fullYearFee - actualAmount;
   if (remainingBalance < 0) remainingBalance = 0;
   
-  // កែសម្រួល៖ កំណត់ Status អោយត្រូវតាមជាក់ស្តែង មិនមែន "Paid" រហូតទេ
   var status = (remainingBalance > 0) ? "Pending" : "Paid";
   
   sheet.appendRow([
@@ -245,7 +241,6 @@ function getDashboardData() {
     var remaining = Number(data[i][13]) || 0;
     var phone = data[i][14] || ""; 
     
-    // កែសម្រួល៖ បូកសរុបប្រាក់ចំណូល និងចំនួនសិស្ស ឱ្យតែគាត់បានបង់ប្រាក់ពិតប្រាកដ (amount > 0)
     if (amount > 0) {
       totalPaidStudents++;
       totalRevenue += amount;
@@ -306,79 +301,6 @@ function getStudentById(studentId) {
   return null;
 }
 
-function getPendingStudents() {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Students_Payment");
-  var data = sheet.getDataRange().getValues();
-  var pendingList = [];
-  
-  for (var i = data.length - 1; i >= 1; i--) {
-    if (data[i][7] === "Pending") { 
-      pendingList.push({
-        id: data[i][0],
-        name: data[i][1],
-        class: data[i][2],
-        type: data[i][3],
-        amount: Number(data[i][4]) || 0,
-        fullFee: Number(data[i][12]) || 0,
-        remaining: Number(data[i][13]) || 0,
-        phone: data[i][14] || ""
-      });
-    }
-  }
-  return pendingList;
-}
-
-function confirmPayment(studentId, paymentMethod, cashierName) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Students_Payment");
-  var historySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Payment_History");
-  var data = sheet.getDataRange().getValues();
-  var searchId = String(studentId).trim();
-  
-  for (var i = 1; i < data.length; i++) {
-    if (String(data[i][0]).trim() === searchId) {
-      var row = i + 1; 
-      var stuName = data[i][1];
-      var stuClass = data[i][2];
-      var paymentType = data[i][3]; 
-      var amount = Number(data[i][4]) || 0; 
-      var fullFee = Number(data[i][12]) || 0;
-      
-      var remaining = fullFee - amount;
-      if (remaining < 0) remaining = 0;
-      var status = (remaining > 0) ? "Pending" : "Paid";
-      
-      sheet.getRange(row, 6).setValue(paymentMethod); 
-      sheet.getRange(row, 8).setValue(status);        
-      sheet.getRange(row, 9).setValue(cashierName);   
-      
-      var historyLog = (paymentType === "១ឆ្នាំពេញ") ? "បង់១ឆ្នាំពេញ" : "បង់ឆមាសទី១";
-      
-      if(historySheet) {
-        historySheet.appendRow([searchId, stuName, new Date(), historyLog, amount, paymentMethod, cashierName]);
-      }
-      
-      var dateStr = new Date().toLocaleString('en-GB', { hour12: true });
-      var telegramText = "🔔 <b><u>ជូនដំណឹងការបង់ប្រាក់ (លើកទី១)</u></b>\n" +
-                         "--------------------------------------------------\n" +
-                         "📝 <b>លេខវិក្កយបត្រ៖</b> " + searchId + "\n" +
-                         "👤 <b>ឈ្មោះសិស្ស៖</b> " + stuName + "\n" +
-                         "🏫 <b>ថ្នាក់រៀន៖</b> " + stuClass + "\n" +
-                         "📦 <b>ដំណាក់កាលបង់៖</b> " + historyLog + "\n" +
-                         "💰 <b>ទឹកប្រាក់ទទួលបាន៖</b> " + amount.toLocaleString() + " KHR\n" +
-                         "💵 <b>ប្រាក់ខ្វះ (ជំពាក់)៖</b> " + remaining.toLocaleString() + " KHR\n" +
-                         "💳 <b>វិធីសាស្ត្របង់៖</b> " + paymentMethod + "\n" +
-                         "🧑‍💻 <b>បេឡាអ្នកទទួល៖</b> " + cashierName + "\n" +
-                         "📅 <b>កាលបរិច្ឆេទ៖</b> " + dateStr + "\n" +
-                         "--------------------------------------------------\n" +
-                         "សាលាបឋមសិក្សាសម្តេចព្រះរាជអគ្គមហេសី នរោត្តម មុនីនាថ សីហនុ";
-      sendTelegramMessage(telegramText);
-      
-      return "ជោគជ័យ៖ បានបញ្ជាក់ការបង់ប្រាក់សម្រាប់ " + stuName;
-    }
-  }
-  return "រកមិនឃើញលេខកូដសិស្ស!";
-}
-
 function collectSecondPayment(studentId, additionalAmount, paymentMethod, cashierName) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Students_Payment");
   var historySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Payment_History");
@@ -395,7 +317,6 @@ function collectSecondPayment(studentId, additionalAmount, paymentMethod, cashie
       var addAmt = Number(additionalAmount);
       var newAmount = currentAmount + addAmt; 
       
-      // កែសម្រួល៖ ធ្វើការគណនាប្រាក់នៅខ្វះឲ្យបានត្រឹមត្រូវ ជៀសវាងការដាក់លេខ 0 ចូលតែម្តង
       var fullFee = Number(data[i][12]) || 0;
       var remaining = fullFee - newAmount;
       if (remaining < 0) remaining = 0;
@@ -459,31 +380,6 @@ function sendTelegramMessage(text) {
   } catch(e) {
     Logger.log("Telegram Error: " + e.message);
   }
-}
-
-function getStudentHistoryLog(studentId) {
-  var historySheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Payment_History");
-  if (!historySheet) return []; 
-  
-  var data = historySheet.getDataRange().getValues();
-  var searchId = String(studentId).trim();
-  var history = [];
-  
-  for (var i = data.length - 1; i >= 1; i--) {
-    if (String(data[i][0]).trim() === searchId) {
-      var rawDate = new Date(data[i][2]);
-      var formattedDate = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "dd/MM/yyyy hh:mm a");
-      
-      history.push({
-        date: formattedDate,
-        phase: data[i][3],       
-        amount: Number(data[i][4]) || 0, 
-        method: data[i][5],      
-        cashier: data[i][6]      
-      });
-    }
-  }
-  return history;
 }
 
 function getDailyClosingReport() {
@@ -552,273 +448,6 @@ function verifyLogin(username, password) {
   } else {
     return { success: false, message: "ឈ្មោះគណនី ឬលេខសម្ងាត់មិនត្រឹមត្រូវទេ!" };
   }
-}
-
-function getTeacherDashboardData() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var studentSheet = ss.getSheetByName("Students_Payment") || ss.getSheets()[0];
-  var historySheet = ss.getSheetByName("Payment_History");
-  
-  var studentData = studentSheet ? studentSheet.getDataRange().getValues() : [];
-  var historyData = historySheet ? historySheet.getDataRange().getValues() : [];
-  
-  var totalPaidStudents = 0;
-  var totalFemalePaid = 0;
-  var totalCollected = 0;
-  var totalRemaining = 0;
-  var studentMap = {};
-  var paidList = [];
-  
-  var headers = studentData[0] || [];
-  var idxId = headers.findIndex(h => String(h).includes('កូដ') || String(h).toLowerCase().includes('id')) || 0;
-  var idxGender = headers.findIndex(h => String(h).includes('ភេទ') || String(h).toLowerCase().includes('gender')) || 2;
-  var idxClass = headers.findIndex(h => String(h).includes('ថ្នាក់') || String(h).toLowerCase().includes('class')) || 3;
-  var idxFullFee = headers.findIndex(h => String(h).includes('សរុប') || String(h).toLowerCase().includes('fee')) || 4;
-  var idxAmount = headers.findIndex(h => String(h).includes('បង់រួច') || String(h).toLowerCase().includes('amount')) || 5;
-  
-  if(idxId === -1) idxId = 0; if(idxGender === -1) idxGender = 2; if(idxClass === -1) idxClass = 3;
-  if(idxFullFee === -1) idxFullFee = 4; if(idxAmount === -1) idxAmount = 5;
-
-  for (var i = 1; i < studentData.length; i++) {
-    var id = String(studentData[i][idxId]).trim();
-    if (!id) continue;
-    
-    var gender = String(studentData[i][idxGender]).trim();
-    var className = String(studentData[i][idxClass]).trim();
-    var fullFee = Number(studentData[i][idxFullFee]) || 0;
-    var paidAmt = Number(studentData[i][idxAmount]) || 0;
-    var rem = fullFee - paidAmt;
-    if (rem < 0) rem = 0;
-    
-    if (paidAmt > 0) {
-      totalPaidStudents++;
-      if (gender === "ស្រី" || gender.toLowerCase() === "female" || gender === "F" || gender === "f") {
-        totalFemalePaid++;
-      }
-      totalCollected += paidAmt;
-    }
-    totalRemaining += rem;
-    
-    studentMap[id] = { className: className };
-  }
-  
-  if (historyData.length > 1) {
-    var count = 0;
-    for (var j = historyData.length - 1; j >= 1; j--) {
-      var sId = String(historyData[j][0]).trim();
-      var sName = String(historyData[j][1]).trim();
-      var pDate = historyData[j][2];
-      var pPhase = historyData[j][3];
-      var pAmt = Number(historyData[j][4]) || 0;
-      
-      if (!sId) continue;
-      
-      var dateStr = "";
-      if (pDate instanceof Date) {
-        dateStr = Utilities.formatDate(pDate, Session.getScriptTimeZone(), "dd/MM/yyyy");
-      } else {
-        dateStr = String(pDate).split(" ")[0] || String(pDate);
-      }
-      
-      var stuInfo = studentMap[sId] || { className: "មិនច្បាស់" };
-      
-      paidList.push({
-        id: sId,
-        name: sName,
-        className: stuInfo.className,
-        amount: pAmt,
-        date: dateStr,
-        phase: pPhase
-      });
-      
-      count++;
-      if (count >= 25) break; 
-    }
-  }
-  
-  return {
-    totalPaidStudents: totalPaidStudents,
-    totalFemalePaid: totalFemalePaid,
-    totalCollected: totalCollected,
-    totalRemaining: totalRemaining,
-    paidList: paidList
-  };
-}
-
-function getPendingSecondPaymentReport() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var studentSheet = ss.getSheetByName("Students_Payment") || ss.getSheets()[0];
-  var historySheet = ss.getSheetByName("Payment_History");
-  
-  var data = studentSheet.getDataRange().getValues();
-  var historyData = historySheet ? historySheet.getDataRange().getValues() : [];
-  
-  var lastPaymentInfo = {};
-  for (var h = 1; h < historyData.length; h++) {
-    var sId = String(historyData[h][0]).trim();
-    var pDate = historyData[h][2];
-    var pMethod = String(historyData[h][5]).trim();
-    
-    var dateStr = "មិនទាន់មាន";
-    if (pDate) {
-      if (pDate instanceof Date) {
-        dateStr = Utilities.formatDate(pDate, Session.getScriptTimeZone(), "dd/MM/yyyy");
-      } else {
-        dateStr = String(pDate).split(" ")[0];
-      }
-    }
-    
-    lastPaymentInfo[sId] = {
-      date: dateStr,
-      method: pMethod || "-"
-    };
-  }
-  
-  var headers = data[0];
-  var idxId = headers.findIndex(h => String(h).includes('កូដ') || String(h).toLowerCase().includes('id'));
-  var idxName = headers.findIndex(h => String(h).includes('ឈ្មោះ') || String(h).toLowerCase().includes('name'));
-  var idxGender = headers.findIndex(h => String(h).includes('ភេទ') || String(h).toLowerCase().includes('gender'));
-  var idxClass = headers.findIndex(h => String(h).includes('ថ្នាក់') || String(h).toLowerCase().includes('class'));
-  var idxFullFee = headers.findIndex(h => String(h).includes('សរុប') || String(h).toLowerCase().includes('fee'));
-  var idxAmount = headers.findIndex(h => String(h).includes('បង់រួច') || String(h).toLowerCase().includes('amount'));
-  
-  var classesGroup = {};
-  var grandTotalRemaining = 0;
-  var grandTotalStudents = 0;
-  
-  for (var i = 1; i < data.length; i++) {
-    var id = String(data[i][idxId]).trim();
-    if (!id) continue;
-    
-    var name = String(data[i][idxName]).trim();
-    var gender = String(data[i][idxGender]).trim();
-    var className = String(data[i][idxClass]).trim() || "មិនទាន់កំណត់ថ្នាក់";
-    var fullFee = Number(data[i][idxFullFee]) || 0;
-    var paidAmt = Number(data[i][idxAmount]) || 0;
-    var remaining = fullFee - paidAmt;
-    
-    if (remaining > 0) {
-      if (!classesGroup[className]) {
-        classesGroup[className] = {
-          students: [],
-          classRemainingTotal: 0
-        };
-      }
-      
-      var payInfo = lastPaymentInfo[id] || { date: "មិនទាន់មាន", method: "-" };
-      
-      classesGroup[className].students.push({
-        id: id,
-        name: name,
-        gender: gender,
-        fullFee: fullFee,
-        paidAmt: paidAmt,
-        remaining: remaining,
-        lastPayDate: payInfo.date,
-        lastPayMethod: payInfo.method
-      });
-      
-      classesGroup[className].classRemainingTotal += remaining;
-      grandTotalRemaining += remaining;
-      grandTotalStudents++;
-    }
-  }
-  
-  return {
-    classes: classesGroup,
-    grandTotalRemaining: grandTotalRemaining,
-    grandTotalStudents: grandTotalStudents,
-    dateGenerated: Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy")
-  };
-}
-
-function generateNextStudentId() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Students_Payment") || ss.getSheets()[0];
-  
-  var lastRow = Math.max(sheet.getLastRow(), 2);
-  var data = sheet.getRange("A2:A" + lastRow).getValues();
-  
-  var maxNumber = 0;
-  
-  for (var i = 0; i < data.length; i++) {
-    var currentId = String(data[i][0]).trim();
-    if (currentId.indexOf("AKKNGS-") === 0) {
-      var numStr = currentId.replace("AKKNGS-", "");
-      var num = parseInt(numStr, 10);
-      if (!isNaN(num) && num > maxNumber) {
-        maxNumber = num;
-      }
-    }
-  }
-  var nextNumber = maxNumber + 1;
-  var nextNumberStr = nextNumber.toString();
-  while (nextNumberStr.length < 6) { nextNumberStr = "0" + nextNumberStr; }
-  return "AKKNGS-" + nextNumberStr;
-}
-
-function saveNewStudent(studentData) {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Students_Payment");
-  var newStudentId = generateNextStudentId();
-  var rowData = [
-    newStudentId,                   
-    studentData.name,               
-    studentData.className,          
-    studentData.paymentType,        
-    Number(studentData.amount),     
-    studentData.paymentMethod || "មិនទាន់បង់", 
-    new Date(),                     
-    "Pending",                      
-    studentData.cashier || "",      
-    studentData.other || "",        
-    studentData.gender,
-    "", "", "", studentData.phone || "" 
-  ];
-  sheet.appendRow(rowData);
-  return newStudentId; 
-}
-
-function getClassMonitoringData() {
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet = ss.getSheetByName("Students_Payment") || ss.getSheets()[0];
-  var data = sheet.getDataRange().getValues();
-  var headers = data[0];
-  var idxId = 0, idxName = 1, idxClass = 2, idxAmount = 4, idxDate = 6, idxStatus = 7, idxGender = 10;
-  var idxFullFee = headers.findIndex(h => String(h).includes('សរុប') || String(h).toLowerCase().includes('fee'));
-  if (idxFullFee === -1) idxFullFee = 4; 
-  
-  var classGroups = {};
-  
-  for (var i = 1; i < data.length; i++) {
-    var id = String(data[i][idxId]).trim();
-    if (!id) continue;
-    
-    var name = String(data[i][idxName]).trim();
-    var className = String(data[i][idxClass]).trim() || "មិនកំណត់";
-    var status = String(data[i][idxStatus]).trim();
-    var gender = String(data[i][idxGender]).trim();
-    
-    var paidAmt = Number(data[i][idxAmount]) || 0;
-    var fullFee = Number(data[i][idxFullFee]) || paidAmt;
-    var remaining = fullFee - paidAmt;
-    if (remaining < 0) remaining = 0;
-    
-    var rawDate = data[i][idxDate];
-    var dateStr = "-";
-    if (rawDate) {
-      if (rawDate instanceof Date) {
-        dateStr = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "dd/MM/yyyy");
-      } else {
-        dateStr = String(rawDate).split(" ")[0];
-      }
-    }
-    
-    if (!classGroups[className]) { classGroups[className] = []; }
-    classGroups[className].push({ name: name, gender: gender, status: status, fullFee: fullFee, paidAmt: paidAmt, remaining: remaining, date: dateStr });
-  }
-  
-  return classGroups;
 }
 
 function getMonthlyClosingReport() {
@@ -930,115 +559,188 @@ function getSemester2PendingData() {
   };
 }
 
-function getAppUrl() {
-  return ScriptApp.getService().getUrl();
+function getClassMonitoringData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Students_Payment") || ss.getSheets()[0];
+  var data = sheet.getDataRange().getValues();
+  var headers = data[0];
+  var idxId = 0, idxName = 1, idxClass = 2, idxAmount = 4, idxDate = 6, idxStatus = 7, idxGender = 10;
+  var idxFullFee = headers.findIndex(h => String(h).includes('សរុប') || String(h).toLowerCase().includes('fee'));
+  if (idxFullFee === -1) idxFullFee = 4; 
+  
+  var classGroups = {};
+  
+  for (var i = 1; i < data.length; i++) {
+    var id = String(data[i][idxId]).trim();
+    if (!id) continue;
+    
+    var name = String(data[i][idxName]).trim();
+    var className = String(data[i][idxClass]).trim() || "មិនកំណត់";
+    var status = String(data[i][idxStatus]).trim();
+    var gender = String(data[i][idxGender]).trim();
+    
+    var paidAmt = Number(data[i][idxAmount]) || 0;
+    var fullFee = Number(data[i][idxFullFee]) || paidAmt;
+    var remaining = fullFee - paidAmt;
+    if (remaining < 0) remaining = 0;
+    
+    var rawDate = data[i][idxDate];
+    var dateStr = "-";
+    if (rawDate) {
+      if (rawDate instanceof Date) {
+        dateStr = Utilities.formatDate(rawDate, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      } else {
+        dateStr = String(rawDate).split(" ")[0];
+      }
+    }
+    
+    if (!classGroups[className]) { classGroups[className] = []; }
+    classGroups[className].push({ name: name, gender: gender, status: status, fullFee: fullFee, paidAmt: paidAmt, remaining: remaining, date: dateStr });
+  }
+  return classGroups;
+}
+
+function getTeacherDashboardData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var studentSheet = ss.getSheetByName("Students_Payment") || ss.getSheets()[0];
+  var historySheet = ss.getSheetByName("Payment_History");
+  
+  var studentData = studentSheet ? studentSheet.getDataRange().getValues() : [];
+  var historyData = historySheet ? historySheet.getDataRange().getValues() : [];
+  
+  var totalPaidStudents = 0;
+  var totalFemalePaid = 0;
+  var totalCollected = 0;
+  var totalRemaining = 0;
+  var studentMap = {};
+  var paidList = [];
+  
+  var headers = studentData[0] || [];
+  var idxId = headers.findIndex(h => String(h).includes('កូដ') || String(h).toLowerCase().includes('id')) || 0;
+  var idxGender = headers.findIndex(h => String(h).includes('ភេទ') || String(h).toLowerCase().includes('gender')) || 2;
+  var idxClass = headers.findIndex(h => String(h).includes('ថ្នាក់') || String(h).toLowerCase().includes('class')) || 3;
+  var idxFullFee = headers.findIndex(h => String(h).includes('សរុប') || String(h).toLowerCase().includes('fee')) || 4;
+  var idxAmount = headers.findIndex(h => String(h).includes('បង់រួច') || String(h).toLowerCase().includes('amount')) || 5;
+  
+  if(idxId === -1) idxId = 0; if(idxGender === -1) idxGender = 2; if(idxClass === -1) idxClass = 3;
+  if(idxFullFee === -1) idxFullFee = 4; if(idxAmount === -1) idxAmount = 5;
+
+  for (var i = 1; i < studentData.length; i++) {
+    var id = String(studentData[i][idxId]).trim();
+    if (!id) continue;
+    
+    var gender = String(studentData[i][idxGender]).trim();
+    var className = String(studentData[i][idxClass]).trim();
+    var fullFee = Number(studentData[i][idxFullFee]) || 0;
+    var paidAmt = Number(studentData[i][idxAmount]) || 0;
+    var rem = fullFee - paidAmt;
+    if (rem < 0) rem = 0;
+    
+    if (paidAmt > 0) {
+      totalPaidStudents++;
+      if (gender === "ស្រី" || gender.toLowerCase() === "female" || gender === "F" || gender === "f") {
+        totalFemalePaid++;
+      }
+      totalCollected += paidAmt;
+    }
+    totalRemaining += rem;
+    studentMap[id] = { className: className };
+  }
+  
+  if (historyData.length > 1) {
+    var count = 0;
+    for (var j = historyData.length - 1; j >= 1; j--) {
+      var sId = String(historyData[j][0]).trim();
+      var sName = String(historyData[j][1]).trim();
+      var pDate = historyData[j][2];
+      var pPhase = historyData[j][3];
+      var pAmt = Number(historyData[j][4]) || 0;
+      
+      if (!sId) continue;
+      
+      var dateStr = "";
+      if (pDate instanceof Date) {
+        dateStr = Utilities.formatDate(pDate, Session.getScriptTimeZone(), "dd/MM/yyyy");
+      } else {
+        dateStr = String(pDate).split(" ")[0] || String(pDate);
+      }
+      
+      var stuInfo = studentMap[sId] || { className: "មិនច្បាស់" };
+      paidList.push({ id: sId, name: sName, className: stuInfo.className, amount: pAmt, date: dateStr, phase: pPhase });
+      
+      count++;
+      if (count >= 25) break; 
+    }
+  }
+  
+  return {
+    totalPaidStudents: totalPaidStudents,
+    totalFemalePaid: totalFemalePaid,
+    totalCollected: totalCollected,
+    totalRemaining: totalRemaining,
+    paidList: paidList
+  };
+}
+
+function generateNextStudentId() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Students_Payment") || ss.getSheets()[0];
+  var lastRow = Math.max(sheet.getLastRow(), 2);
+  var data = sheet.getRange("A2:A" + lastRow).getValues();
+  var maxNumber = 0;
+  for (var i = 0; i < data.length; i++) {
+    var currentId = String(data[i][0]).trim();
+    if (currentId.indexOf("AKKNGS-") === 0) {
+      var numStr = currentId.replace("AKKNGS-", "");
+      var num = parseInt(numStr, 10);
+      if (!isNaN(num) && num > maxNumber) { maxNumber = num; }
+    }
+  }
+  var nextNumber = maxNumber + 1;
+  var nextNumberStr = nextNumber.toString();
+  while (nextNumberStr.length < 6) { nextNumberStr = "0" + nextNumberStr; }
+  return "AKKNGS-" + nextNumberStr;
 }
 
 function saveReceiptToDrive(studentId, studentName, studentClass, amount, method, cashier, phase) {
   try {
     if (!RECEIPT_FOLDER_ID) return null;
-    
     var folder = DriveApp.getFolderById(RECEIPT_FOLDER_ID);
     var dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd-MM-yyyy HH:mm");
-    
     var fileName = studentId + "_" + studentName + "_" + phase + ".pdf";
-
     var fullFeeText = "មិនទាន់កំណត់";
     var student = getStudentById(studentId); 
-    if (student && student.fullFee) {
-       fullFeeText = Number(student.fullFee).toLocaleString() + " KHR";
-    }
-
+    if (student && student.fullFee) { fullFeeText = Number(student.fullFee).toLocaleString() + " KHR"; }
     var logoUrl = "https://drive.google.com/uc?export=view&id=1oIqI5efkxsTz8sQy_C-BPqZrXar_NbHO"; 
 
     var html = `
       <div style="font-family: 'Khmer OS Siemreap', Arial, sans-serif; padding: 40px; border: 1px solid #e2e8f0; border-radius: 12px; max-width: 600px; margin: 0 auto; background: #ffffff;">
-        
         <div style="text-align: center; margin-bottom: 20px;">
             <img src="${logoUrl}" alt="School Logo" style="width: 80px; height: 80px; margin-bottom: 10px;">
             <h2 style="color: #1e3a8a; margin: 0; font-size: 22px;">សាលាបឋមសិក្សាសម្តេចព្រះរាជអគ្គមហេសី</h2>
             <p style="color: #64748b; margin: 5px 0 0 0; font-size: 15px;">វិក្កយបត្របង់ប្រាក់ (Official E-Receipt)</p>
         </div>
-
         <hr style="border: none; border-top: 2px dashed #cbd5e1; margin: 25px 0;">
-
         <table style="width: 100%; border-collapse: collapse; font-size: 15px; color: #334155;">
-            <tr>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; width: 45%;"><strong>លេខវិក្កយបត្រ៖</strong></td>
-                <td style="text-align: right; border-bottom: 1px solid #f1f5f9; font-weight: bold; color: #0f172a;">${studentId}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>ឈ្មោះសិស្ស៖</strong></td>
-                <td style="text-align: right; border-bottom: 1px solid #f1f5f9; font-weight: bold; color: #1e3a8a;">${studentName}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>ថ្នាក់រៀន៖</strong></td>
-                <td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${studentClass}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>ដំណាក់កាលបង់៖</strong></td>
-                <td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${phase}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; background-color: #fbfbfb;"><strong>ថវិកាសរុបក្នុង១ឆ្នាំ៖</strong></td>
-                <td style="text-align: right; border-bottom: 1px solid #f1f5f9; background-color: #fbfbfb;">${fullFeeText}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>វិធីសាស្ត្របង់៖</strong></td>
-                <td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${method}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>អ្នកទទួលប្រាក់៖</strong></td>
-                <td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${cashier}</td>
-            </tr>
-            <tr>
-                <td style="padding: 12px 0;"><strong>កាលបរិច្ឆេទ៖</strong></td>
-                <td style="text-align: right;">${dateStr}</td>
-            </tr>
+            <tr><td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; width: 45%;"><strong>លេខវិក្កយបត្រ៖</strong></td><td style="text-align: right; border-bottom: 1px solid #f1f5f9; font-weight: bold; color: #0f172a;">${studentId}</td></tr>
+            <tr><td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>ឈ្មោះសិស្ស៖</strong></td><td style="text-align: right; border-bottom: 1px solid #f1f5f9; font-weight: bold; color: #1e3a8a;">${studentName}</td></tr>
+            <tr><td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>ថ្នាក់រៀន៖</strong></td><td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${studentClass}</td></tr>
+            <tr><td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>ដំណាក់កាលបង់៖</strong></td><td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${phase}</td></tr>
+            <tr><td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9; background-color: #fbfbfb;"><strong>ថវិកាសរុបក្នុង១ឆ្នាំ៖</strong></td><td style="text-align: right; border-bottom: 1px solid #f1f5f9; background-color: #fbfbfb;">${fullFeeText}</td></tr>
+            <tr><td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>វិធីសាស្ត្របង់៖</strong></td><td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${method}</td></tr>
+            <tr><td style="padding: 12px 0; border-bottom: 1px solid #f1f5f9;"><strong>អ្នកទទួលប្រាក់៖</strong></td><td style="text-align: right; border-bottom: 1px solid #f1f5f9;">${cashier}</td></tr>
+            <tr><td style="padding: 12px 0;"><strong>កាលបរិច្ឆេទ៖</strong></td><td style="text-align: right;">${dateStr}</td></tr>
         </table>
-
         <div style="margin-top: 30px; background-color: #f8fafc; padding: 20px; text-align: center; border-radius: 8px; border: 1px solid #e2e8f0;">
             <p style="margin: 0; font-size: 16px; color: #475569;">ទឹកប្រាក់ទទួលបាន (Amount Paid)</p>
             <h1 style="margin: 10px 0 0 0; color: #059669; font-size: 28px;">${amount.toLocaleString()} KHR</h1>
         </div>
-
-        <div style="margin-top: 30px; text-align: center; color: #94a3b8; font-size: 12px;">
-            <p>សូមអរគុណ! ឯកសារនេះត្រូវបានបង្កើតដោយប្រព័ន្ធស្វ័យប្រវត្តិ។</p>
-        </div>
       </div>
     `;
-
     var blob = Utilities.newBlob(html, MimeType.HTML).getAs(MimeType.PDF).setName(fileName);
     var file = folder.createFile(blob);
-    
     return file.getUrl();
   } catch (e) {
-    Logger.log("Error saving PDF: " + e.message);
     return null;
   }
-}
-
-function authorizeDrive() {
-  var folder = DriveApp.getFolderById(RECEIPT_FOLDER_ID);
-  Logger.log("បានភ្ជាប់ទៅកាន់ Folder៖ " + folder.getName());
-}
-
-function testCreatePDF() {
-  try {
-    var folderId = "1nOrIud1_6VP6VuZ6nbflAu56J1K3iJo_";
-    var folder = DriveApp.getFolderById(folderId);
-    
-    var html = "<div style='text-align:center; padding:20px;'><h1>សាកល្បងបង្កើត PDF</h1><p>នេះគឺជាការធ្វើតេស្តប្រព័ន្ធរក្សាទុកឯកសារ។</p></div>";
-    
-    var blob = Utilities.newBlob(html, MimeType.HTML).getAs(MimeType.PDF).setName("Test_Receipt.pdf");
-    var file = folder.createFile(blob);
-    
-    Logger.log("✅ ជោគជ័យ! ឯកសារត្រូវបានបង្កើត។ តំណភ្ជាប់៖ " + file.getUrl());
-  } catch (e) {
-    Logger.log("❌ កំហុស (Error): " + e.message);
-  }
-}
-
-function forceDriveScope() {
-  DriveApp.createFile("AuthTest.txt", "សាកល្បងសិទ្ធិ", MimeType.PLAIN_TEXT);
 }
