@@ -137,7 +137,7 @@
     <div id="toastBox" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
-      // ⚠️ ទីនេះ! សូមយក Link Web App ថ្មីដែលបានពីការ Deploy មកដាក់ជំនួសខាងក្រោមនេះ៖
+      // ⚠️ ទីនេះ! សូមយក Link Web App ថ្មីដែលបានពីការ Deploy មកដាក់!
       const API_URL = "https://script.google.com/macros/s/AKfycbxKVEi1Nol7NUyhikwCqJJqmCV5u5Wxd0FXSzLB7ojM0GAI1B3cJwq-nQX8y6RVC_Np/exec"; 
 
       async function callBackend(action, params = {}) {
@@ -157,7 +157,6 @@
       function showToast(message, type = 'success') {
         var toastBox = document.getElementById('toastBox');
         var toast = document.createElement('div');
-        // កែសម្រួលបញ្ហាពណ៌មិនលោត
         var bgClass = type === 'error' ? 'bg-red-600' : 'bg-emerald-600';
         toast.className = bgClass + " text-white px-5 py-3 rounded-xl shadow-2xl transition duration-500 text-sm font-bold min-w-[280px] mb-2";
         toast.innerText = message;
@@ -233,6 +232,38 @@
         });
       }
 
+      // កែសម្រួល៖ មុខងារជួយគណនា និងដាស់តឿនលើអេក្រង់បានត្រឡប់មកវិញ
+      function calculateRemainingHint() {
+        var full = Number(document.getElementById('fullYearFee').value) || 0;
+        var actual = Number(document.getElementById('amount').value) || 0;
+        var rem = full - actual;
+        var hint = document.getElementById('amountHint');
+        if (rem > 0) {
+          hint.innerText = "ប្រាក់នៅខ្វះជំពាក់សាលា៖ " + rem.toLocaleString() + " KHR";
+          hint.className = "text-[11px] text-red-500 mt-0.5 block font-semibold";
+        } else {
+          hint.innerText = "ប្រាក់នៅខ្វះ៖ 0 KHR (បង់ដាច់)";
+          hint.className = "text-[11px] text-gray-500 mt-0.5 block";
+        }
+      }
+
+      function checkSpecialCondition() {
+        var condition = document.getElementById('otherNote').value;
+        var fullInput = document.getElementById('fullYearFee');
+        var amountInput = document.getElementById('amount');
+        if (condition === "សិស្សក្រីក្រ (លើកលែង)" || condition === "សិស្សលើកលែង") {
+          fullInput.value = 0; fullInput.disabled = true; fullInput.classList.add('bg-gray-100');
+          amountInput.value = 0; amountInput.disabled = true; amountInput.classList.add('bg-gray-100');
+        } else if (condition === "សិស្សបញ្ចុះតម្លៃ") {
+          fullInput.value = 500000; fullInput.disabled = false; fullInput.classList.remove('bg-gray-100'); 
+          amountInput.value = 300000; amountInput.disabled = false; amountInput.classList.remove('bg-gray-100'); 
+        } else {
+          fullInput.value = 600000; fullInput.disabled = false; fullInput.classList.remove('bg-gray-100');
+          amountInput.value = 600000; amountInput.disabled = false; amountInput.classList.remove('bg-gray-100');
+        }
+        calculateRemainingHint();
+      }
+
       function submitStudent() {
         var p = {
           id: document.getElementById('editStudentId').value,
@@ -271,8 +302,14 @@
         document.getElementById('editStudentId').value = stu.id;
         document.getElementById('stuName').value = stu.name;
         document.getElementById('stuClass').value = stu.class;
+        
+        // បញ្ចូលទិន្នន័យទឹកប្រាក់មកវិញ
+        document.getElementById('fullYearFee').value = stu.fullFee;
+        document.getElementById('amount').value = stu.amount;
+        
         document.getElementById('btnSubmit').innerText = "Update";
         document.getElementById('btnCancelEdit').classList.remove('hidden');
+        calculateRemainingHint();
       }
       function cancelEditMode() {
         document.getElementById('editStudentId').value = ""; document.getElementById('stuName').value = ""; document.getElementById('btnSubmit').innerText = "Save"; document.getElementById('btnCancelEdit').classList.add('hidden');
@@ -304,10 +341,45 @@
       function hideSemester2Report() { document.getElementById('semester2Wrapper').classList.add('hidden'); document.getElementById('mainAppWrapper').classList.remove('hidden'); }
       
       function startClock() { setInterval(() => document.getElementById('liveClock').innerText = new Date().toLocaleTimeString(), 1000); }
-      function checkSpecialCondition() {}
-      function calculateRemainingHint() {}
-      function generateDailyReport() {}
-      function generateMonthlyReport() {}
+      
+      // កែសម្រួល៖ មុខងារទាញរបាយការណ៍បោះពុម្ពបានត្រឡប់មកវិញ
+      function generateDailyReport() {
+        var btn = document.getElementById('btnDailyReport');
+        var originalText = btn.innerHTML;
+        btn.innerHTML = "⏳ កំពុងរៀបចំ...";
+        callBackend('getDailyClosingReport').then(report => {
+          btn.innerHTML = originalText;
+          if(report.error || report.totalTx === 0) { alert("មិនមានទិន្នន័យបង់ប្រាក់សម្រាប់ថ្ងៃនេះទេ!"); return; }
+          document.querySelector('#dailyReportPrintArea h3').innerText = "របាយការណ៍បិទបញ្ជីបេឡាប្រចាំថ្ងៃ";
+          document.querySelector('#dailyReportPrintArea p.text-center.mb-6').innerHTML = 'កាលបរិច្ឆេទ៖ <span id="rptDate" class="font-bold">' + report.date + '</span>';
+          var tbody = document.getElementById('rptTbody'); tbody.innerHTML = "";
+          report.details.forEach(function(row, index) {
+            tbody.innerHTML += `<tr><td class="border border-gray-300 p-1.5 text-center">${index + 1}</td><td class="border border-gray-300 p-1.5 text-[10px] text-gray-600">${row.date || report.date}<br><span class="font-semibold text-black">${row.id}</span></td><td class="border border-gray-300 p-1.5 font-bold">${row.name}</td><td class="border border-gray-300 p-1.5 text-[10px]">${row.phase}</td><td class="border border-gray-300 p-1.5 text-right font-semibold text-emerald-700">${row.amount.toLocaleString()}</td><td class="border border-gray-300 p-1.5 text-center text-[10px] text-gray-500">${row.method}</td></tr>`;
+          });
+          document.getElementById('mainAppWrapper').classList.add('print-hide'); document.getElementById('dailyReportPrintArea').classList.replace('hidden', 'print-show');
+          window.print();
+          setTimeout(function() { document.getElementById('dailyReportPrintArea').classList.replace('print-show', 'hidden'); document.getElementById('mainAppWrapper').classList.remove('print-hide'); }, 1000);
+        });
+      }
+
+      function generateMonthlyReport() {
+        var btn = document.getElementById('btnMonthlyReport');
+        var originalText = btn.innerHTML;
+        btn.innerHTML = "⏳ កំពុងរៀបចំ...";
+        callBackend('getMonthlyClosingReport').then(report => {
+          btn.innerHTML = originalText;
+          if(report.error || report.totalTx === 0) { alert("មិនមានទិន្នន័យបង់ប្រាក់សម្រាប់ខែនេះទេ!"); return; }
+          document.querySelector('#dailyReportPrintArea h3').innerText = "របាយការណ៍បិទបញ្ជីបេឡាប្រចាំខែ";
+          document.querySelector('#dailyReportPrintArea p.text-center.mb-6').innerHTML = 'សម្រាប់ខែ៖ <span id="rptDate" class="font-bold text-blue-700">' + report.monthStr + '</span>';
+          var tbody = document.getElementById('rptTbody'); tbody.innerHTML = "";
+          report.details.forEach(function(row, index) {
+            tbody.innerHTML += `<tr><td class="border border-gray-300 p-1.5 text-center">${index + 1}</td><td class="border border-gray-300 p-1.5 text-[10px] text-gray-600">${row.date}<br><span class="font-semibold text-black">${row.id}</span></td><td class="border border-gray-300 p-1.5 font-bold">${row.name}</td><td class="border border-gray-300 p-1.5 text-[10px]">${row.phase}</td><td class="border border-gray-300 p-1.5 text-right font-semibold text-emerald-700">${row.amount.toLocaleString()}</td><td class="border border-gray-300 p-1.5 text-center text-[10px] text-gray-500">${row.method}</td></tr>`;
+          });
+          document.getElementById('mainAppWrapper').classList.add('print-hide'); document.getElementById('dailyReportPrintArea').classList.replace('hidden', 'print-show');
+          window.print();
+          setTimeout(function() { document.getElementById('dailyReportPrintArea').classList.replace('print-show', 'hidden'); document.getElementById('mainAppWrapper').classList.remove('print-hide'); }, 1000);
+        });
+      }
     </script>
   </body>
 </html>
