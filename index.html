@@ -39,6 +39,7 @@
 
     <!-- MAIN DASHBOARD -->
     <div id="mainAppWrapper" class="max-w-7xl mx-auto print-hide hidden p-4 md:p-6">
+      
       <div class="bg-white p-6 rounded-2xl shadow-sm mb-6 flex flex-col md:flex-row items-center justify-between gap-4 border-t-4 border-blue-600">
         <div class="flex items-center gap-4 text-center md:text-left">
           <img src="https://lh3.googleusercontent.com/d/1wkwC994Ybybe2TUOeE-h-gNIxfZQyYvY" class="w-16 h-16 object-contain">
@@ -97,7 +98,7 @@
           </div>
          <div class="overflow-x-auto max-h-[550px] border border-slate-200 rounded-lg">
             <table class="w-full text-left border-collapse text-[11px] md:text-xs">
-              <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0 z-10"><th class="p-3">ឆ្នាំ</th><th class="p-3">ឈ្មោះ</th><th class="p-3 text-center">ភេទ</th><th class="p-3 text-center">ថ្នាក់</th><th class="p-3">បង់រួច</th><th class="p-3 text-blue-700">តម្លៃពេញ</th><th class="p-3 text-red-600">នៅខ្វះ</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">សកម្មភាព</th></thead>
+              <thead class="bg-slate-100 text-slate-700 font-bold sticky top-0 z-10"><tr><th class="p-3">ឆ្នាំ</th><th class="p-3">ឈ្មោះ</th><th class="p-3 text-center">ភេទ</th><th class="p-3 text-center">ថ្នាក់</th><th class="p-3">បង់រួច</th><th class="p-3 text-blue-700">តម្លៃពេញ</th><th class="p-3 text-red-600">នៅខ្វះ</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">សកម្មភាព</th></tr></thead>
               <tbody id="studentTableBody" class="divide-y divide-slate-100 bg-white"><tr><td colspan="9" class="p-6 text-center text-gray-400">កំពុងទាញយក...</td></tr></tbody>
             </table>
           </div>
@@ -126,17 +127,85 @@
       </div></div>
     </div>
 
-    <!-- PRINT RECEIPT & REPORTS -->
+    <!-- PRINT RECEIPT -->
     <div id="printReceiptArea" class="hidden print-show max-w-4xl mx-auto bg-white p-4"></div>
-    <div id="dailyReportPrintArea" class="hidden print-show max-w-4xl mx-auto bg-white p-4">
-      <h3 class="text-center font-muol text-lg mb-2">របាយការណ៍បេឡា</h3><p class="text-center mb-6" id="rptDate"></p>
-      <table class="w-full text-left text-xs border-collapse border border-gray-300"><tbody id="rptTbody"></tbody></table>
+    
+    <!-- PRINT សម្រាប់ របាយការណ៍បិទបញ្ជីប្រចាំថ្ងៃ/ខែ (ទម្រង់ស្តង់ដារថ្មី) -->
+    <div id="dailyReportPrintArea" class="hidden print-show max-w-4xl mx-auto bg-white p-8 text-sm text-slate-800">
+      
+      <!-- ព្រះរាជាណាចក្រកម្ពុជា -->
+      <div class="flex justify-between items-start mb-6 border-b-2 border-slate-800 pb-4">
+        <div class="text-center w-[280px]">
+          <img src="https://lh3.googleusercontent.com/d/1wkwC994Ybybe2TUOeE-h-gNIxfZQyYvY" class="w-20 h-20 mx-auto mb-2 object-contain">
+          <h2 class="font-muol text-[13px] text-blue-900 leading-relaxed uppercase">សាលាបឋមសិក្សាសម្តេចព្រះរាជអគ្គមហេសី</h2>
+          <h3 class="font-muol text-[12px] text-blue-700 mt-1">នរោត្តម មុនីនាថ សីហនុ</h3>
+        </div>
+        <div class="text-center w-[280px] pt-2">
+          <h2 class="font-muol text-lg uppercase">ព្រះរាជាណាចក្រកម្ពុជា</h2>
+          <h3 class="font-muol text-md mt-1">ជាតិ សាសនា ព្រះមហាក្សត្រ</h3>
+          <div class="flex justify-center mt-2"><span class="w-16 border-b-2 border-slate-800"></span></div>
+        </div>
+      </div>
+
+      <!-- ចំណងជើងរបាយការណ៍ -->
+      <div class="text-center mb-6 mt-4">
+        <h1 id="rptTitle" class="font-muol text-xl mb-2 tracking-wide">របាយការណ៍បិទបញ្ជីបេឡាប្រចាំថ្ងៃ</h1>
+        <p class="text-sm">កាលបរិច្ឆេទ៖ <span id="rptDate" class="font-bold text-blue-700"></span></p>
+      </div>
+
+      <!-- ប្រអប់សង្ខេបចំណូលសរុប -->
+      <div class="flex flex-wrap justify-between gap-4 mb-6 p-4 rounded-xl border-2 border-slate-200 bg-slate-50 shadow-sm">
+        <div class="w-full md:w-auto">
+          <p class="text-slate-500 text-[11px] font-bold uppercase mb-1">ប្រតិបត្តិការសរុប</p>
+          <p class="text-lg font-bold"><span id="rptTx">0</span> <span class="text-xs font-normal text-slate-500">ប្រត្តិបត្តិការ</span></p>
+        </div>
+        <div class="w-full md:w-auto">
+          <p class="text-slate-500 text-[11px] font-bold uppercase mb-1">ចំណូលសាច់ប្រាក់ (Cash)</p>
+          <p class="text-lg font-bold text-slate-700"><span id="rptCash">0</span> <span class="text-xs font-normal text-slate-500">៛</span></p>
+        </div>
+        <div class="w-full md:w-auto">
+          <p class="text-slate-500 text-[11px] font-bold uppercase mb-1">ចំណូលស្កែន (KHQR)</p>
+          <p class="text-lg font-bold text-slate-700"><span id="rptQR">0</span> <span class="text-xs font-normal text-slate-500">៛</span></p>
+        </div>
+        <div class="w-full md:w-auto text-right border-l-2 border-slate-300 pl-4">
+          <p class="text-blue-700 text-[11px] font-bold uppercase mb-1">ចំណូលសរុបរួម</p>
+          <p class="text-2xl font-bold text-emerald-600"><span id="rptGrand">0</span> <span class="text-sm font-normal text-emerald-600">៛</span></p>
+        </div>
+      </div>
+
+      <!-- តារាងទិន្នន័យលម្អិត -->
+      <table class="w-full text-left border-collapse border border-slate-400 mb-8 text-[12px]">
+        <thead class="bg-slate-100">
+          <tr>
+            <th class="border border-slate-400 p-2.5 text-center w-12 font-muol font-normal text-[11px]">ល.រ</th>
+            <th class="border border-slate-400 p-2.5 font-muol font-normal text-[11px]">កាលបរិច្ឆេទ & លេខវិក្កយបត្រ</th>
+            <th class="border border-slate-400 p-2.5 font-muol font-normal text-[11px]">ឈ្មោះសិស្ស</th>
+            <th class="border border-slate-400 p-2.5 font-muol font-normal text-[11px]">ដំណាក់កាលបង់</th>
+            <th class="border border-slate-400 p-2.5 text-right font-muol font-normal text-[11px]">ទឹកប្រាក់ (៛)</th>
+            <th class="border border-slate-400 p-2.5 text-center font-muol font-normal text-[11px]">វិធីសាស្ត្រ</th>
+          </tr>
+        </thead>
+        <tbody id="rptTbody"></tbody>
+      </table>
+
+      <!-- ហត្ថលេខាបញ្ជាក់ -->
+      <div class="flex justify-between mt-12 pt-4 text-sm">
+        <div class="text-center">
+          <p class="mb-2 font-muol">បានឃើញ និង ឯកភាព</p>
+          <p class="mb-16 font-bold">នាយកសាលា</p>
+          <p class="text-slate-400">......................................................</p>
+        </div>
+        <div class="text-center">
+          <p class="mb-2">ធ្វើនៅ.................., ថ្ងៃទី.........ខែ.........ឆ្នាំ២០២...</p>
+          <p class="mb-16 font-muol">បេឡាអ្នករៀបចំរបាយការណ៍</p>
+          <p class="font-bold text-blue-800 text-base" id="rptCashierName">................................</p>
+        </div>
+      </div>
     </div>
 
     <div id="toastBox" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
-      // ⚠️ ទីនេះ! សូមយក Link Web App ថ្មីដែលបានពីការ Deploy មកដាក់ជំនួសខាងក្រោមនេះ៖
       const API_URL = "https://script.google.com/macros/s/AKfycbxKVEi1Nol7NUyhikwCqJJqmCV5u5Wxd0FXSzLB7ojM0GAI1B3cJwq-nQX8y6RVC_Np/exec"; 
 
       async function callBackend(action, params = {}) {
@@ -211,7 +280,6 @@
           var statusText = stu.remaining === 0 ? "បង់ដាច់" : "ជំពាក់";
           var remClass = stu.remaining > 0 ? "text-red-500 font-bold" : "text-gray-400";
           
-          // 👉 បន្ថែមប៊ូតុង Telegram & Call 
           var contactBtns = "";
           if (stu.phone && stu.phone.trim() !== "" && stu.phone !== "មិនមាន") {
             var cleanPhone = stu.phone.replace(/[\s\-]/g, '');
@@ -272,7 +340,6 @@
         document.getElementById('stuPhone').value = stu.phone || "";
         document.getElementById('paymentMethod').value = stu.method || "សាច់ប្រាក់សុទ្ធ (Cash)";
 
-        // 👉 លាក់ ឬ បិទសិទ្ធិ (Lock) មិនឲ្យកែប្រែថវិកា
         document.getElementById('payType').disabled = true;
         document.getElementById('otherNote').disabled = true;
         document.getElementById('fullYearFee').disabled = true;
@@ -286,7 +353,6 @@
       function cancelEditMode() {
         document.getElementById('editStudentId').value = ""; document.getElementById('stuName').value = ""; document.getElementById('stuClass').value = ""; document.getElementById('stuPhone').value = "";
         
-        // 👉 ដោះសោរថវិកាវិញ ពេលចុចបោះបង់ ឬចុះឈ្មោះថ្មី
         document.getElementById('payType').disabled = false;
         document.getElementById('otherNote').disabled = false;
         document.getElementById('fullYearFee').disabled = false;
@@ -320,11 +386,8 @@
       }
       function hideSemester2Report() { document.getElementById('semester2Wrapper').classList.add('hidden'); document.getElementById('mainAppWrapper').classList.remove('hidden'); }
       function startClock() { setInterval(() => document.getElementById('liveClock').innerText = new Date().toLocaleTimeString(), 1000); }
-      function generateDailyReport() { /* មុខងារបោះពុម្ពដដែល (លាក់ជាបណ្ដោះអាសន្នដើម្បីកុំឲ្យកូដវែងពេក) */ }
-      function generateMonthlyReport() { /* មុខងារបោះពុម្ពដដែល */ }
-
-// មុខងាររបាយការណ៍ប្រចាំថ្ងៃ
-     function generateDailyReport() {
+      
+      function generateDailyReport() {
         var btn = document.getElementById('btnDailyReport');
         var originalText = btn.innerHTML;
         btn.innerHTML = "⏳ កំពុងរៀបចំ...";
@@ -361,7 +424,6 @@
             `;
           });
           
-          // បិទផ្ទាំងផ្សេងៗ និងបើកផ្ទាំងព្រីន
           document.getElementById('mainAppWrapper').classList.add('hidden', 'print-hide'); 
           document.getElementById('semester2Wrapper').classList.add('hidden', 'print-hide');
           document.getElementById('semester2Wrapper').classList.remove('print-show');
@@ -426,8 +488,6 @@
           }, 1000);
         });
       }
-    
-      
     </script>
   </body>
 </html>
