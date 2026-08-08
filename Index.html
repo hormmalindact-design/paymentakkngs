@@ -137,10 +137,9 @@
     <div id="toastBox" class="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none"></div>
 
     <script>
-      // ⚠️ ទីនេះ! សូមយក Link Web App ថ្មីដែលបានពីការ Deploy មកដាក់!
-      const API_URL = "https://script.google.com/macros/s/AKfycbwBOa-KpEGfjesn-y33oG0MEIyY6Gd2cKNaECcoIxAfxjhdi5x6BxqFDhUqZFa2cAc3/exec"; 
+      // ⚠️ ទីនេះ! សូមយក Link Web App ថ្មីដែលបានពីការ Deploy មកដាក់ជំនួសខាងក្រោមនេះ៖
+      const API_URL = "https://script.google.com/macros/s/AKfycbxKVEi1Nol7NUyhikwCqJJqmCV5u5Wxd0FXSzLB7ojM0GAI1B3cJwq-nQX8y6RVC_Np/exec"; 
 
-      // Function ស្នូលសម្រាប់ហៅទៅកាន់ Google Apps Script
       async function callBackend(action, params = {}) {
         let url = API_URL + "?action=" + action;
         for (let key in params) {
@@ -151,14 +150,16 @@
           return await res.json();
         } catch (err) {
           console.error(err);
-          return { error: true, message: "ការភ្ជាប់ទៅ Server បរាជ័យ!" };
+          return { error: true, message: "ការភ្ជាប់ទៅ Server បរាជ័យ! សូមពិនិត្យ Link ឡើងវិញ។" };
         }
       }
 
       function showToast(message, type = 'success') {
         var toastBox = document.getElementById('toastBox');
         var toast = document.createElement('div');
-        toast.className = `bg-${type==='error'?'red':'emerald'}-600 text-white px-5 py-3 rounded-xl shadow-2xl transition duration-500 text-sm font-bold min-w-[280px] mb-2`;
+        // កែសម្រួលបញ្ហាពណ៌មិនលោត
+        var bgClass = type === 'error' ? 'bg-red-600' : 'bg-emerald-600';
+        toast.className = bgClass + " text-white px-5 py-3 rounded-xl shadow-2xl transition duration-500 text-sm font-bold min-w-[280px] mb-2";
         toast.innerText = message;
         toastBox.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
