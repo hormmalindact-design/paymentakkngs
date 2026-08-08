@@ -6,6 +6,35 @@ var TELEGRAM_CHAT_ID = "-1004317236863";
 var RECEIPT_FOLDER_ID = "1nOrIud1_6VP6VuZ6nbflAu56J1K3iJo_"; 
 
 function doGet(e) {
+  // -------------------------------------------------------------
+  // ផ្នែកទី១៖ នេះគឺជា API សម្រាប់ Vercel ហៅយកទិន្នន័យ
+  // -------------------------------------------------------------
+  if (e.parameter.action) {
+    var action = e.parameter.action;
+    var result = {};
+    
+    try {
+      if (action === "getClassMonitoringData") {
+        result = getClassMonitoringData();
+      } else if (action === "getTeacherDashboardData") {
+        result = getTeacherDashboardData();
+      } else if (action === "getDashboardData") {
+        result = getDashboardData();
+      }
+      
+      // បញ្ជូនទិន្នន័យទៅ Vercel វិញជាទម្រង់ JSON
+      return ContentService.createTextOutput(JSON.stringify(result))
+        .setMimeType(ContentService.MimeType.JSON);
+        
+    } catch (error) {
+      return ContentService.createTextOutput(JSON.stringify({error: error.message}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
+
+  // -------------------------------------------------------------
+  // ផ្នែកទី២៖ នេះគឺជាកូដចាស់សម្រាប់បង្ហាញផ្ទាំង HTML ពេលបើកផ្ទាល់ពី Apps Script
+  // -------------------------------------------------------------
   var page = e.parameter.page || 'index'; 
   
   if (page === 'cashier') {
@@ -39,6 +68,7 @@ function doGet(e) {
   }
 }
 
+// ... សូមបន្តរក្សាមុខងារផ្សេងៗទៀត (addNewStudent, getDashboardData...) នៅទីនេះដដែល ...
 function addNewStudent(studentName, gender, studentClass, phone, paymentType, amount, otherNote, schoolYear, fullYearFeeInput, paymentMethod, cashierName) {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName("Students_Payment");
