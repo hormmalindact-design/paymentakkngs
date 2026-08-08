@@ -271,24 +271,26 @@
       }
       function clearSearch() { document.getElementById('searchKeyword').value = ""; updateDashboard(); }
 
-    function renderTableRows(studentsData) {
-        var tbody = document.getElementById('studentTableBody');
-        tbody.innerHTML = "";
-        if(!studentsData || studentsData.length === 0) return tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center text-slate-500 font-bold">គ្មានទិន្នន័យទេ</td></tr>`;
+   function renderTableRows(studentsData) {
+        var tbody = document.getElementById('studentTableBody'); tbody.innerHTML = "";
+        if(!studentsData || studentsData.length === 0) return tbody.innerHTML = `<tr><td colspan="9" class="p-4 text-center">គ្មានទិន្នន័យទេ</td></tr>`;
         
         studentsData.forEach(stu => {
           var statusClass = stu.remaining === 0 ? "bg-emerald-50 text-emerald-700 border border-emerald-200" : "bg-amber-50 text-amber-700 border border-amber-200";
           var statusText = stu.remaining === 0 ? "បង់ដាច់" : "ជំពាក់";
           var remClass = stu.remaining > 0 ? "text-red-500 font-bold" : "text-gray-400";
           
-          // 👉 ផ្នែកបន្ថែមប៊ូតុង Telegram & Call 
           var contactBtns = "";
-          // បំប្លែងទិន្នន័យលេខទូរសព្ទទៅជាអក្សរ (String) ជាមុនសិន ដើម្បីការពារ Error
-          var phoneStr = stu.phone ? String(stu.phone).trim() : ""; 
-          
-          if (phoneStr !== "" && phoneStr !== "មិនមាន") {
-            var cleanPhone = phoneStr.replace(/[\s\-]/g, ''); // លុបចន្លោះ និងសញ្ញាដក
-            var tgPhone = cleanPhone.startsWith('0') ? '+855' + cleanPhone.substring(1) : cleanPhone;
+          // 👉 ជួសជុលបញ្ហាលេខទូរសព្ទបាត់លេខ ០ និង Telegram
+          var phoneStr = stu.phone ? String(stu.phone).trim() : "";
+          if (phoneStr !== "" && phoneStr !== "មិនមាន" && phoneStr !== "0") {
+            // ប្រសិនបើលេខមិនផ្តើមដោយ ០ ទេ យើងបន្ថែម ០ ឲ្យវាវិញ
+            if (!phoneStr.startsWith('0')) {
+                phoneStr = '0' + phoneStr; 
+            }
+            
+            var cleanPhone = phoneStr.replace(/[\s\-]/g, '');
+            var tgPhone = '+855' + cleanPhone.substring(1); // បំប្លែងទៅលេខកូដប្រទេស +855
             
             contactBtns += `<a href="tel:${cleanPhone}" title="ខលទូរសព្ទ" class="mx-1 text-emerald-600 hover:scale-125 transition inline-block text-lg no-underline">📞</a>`;
             contactBtns += `<a href="https://t.me/${tgPhone}" target="_blank" title="Telegram" class="mx-1 text-sky-500 hover:scale-125 transition inline-block text-lg no-underline">💬</a>`;
@@ -300,20 +302,9 @@
           if(currentUserRoleName === "ហម ម៉ាលីនដា") acts += `<button onclick="deleteStudentData('${stu.id}')" title="លុបទិន្នន័យ" class="mx-1 text-red-600 hover:scale-125 transition text-lg">🗑️</button>`;
           acts += `</div>`;
           
-          // បង្ហាញទិន្នន័យចូលតារាង
-          tbody.innerHTML += `<tr class="border-b hover:bg-blue-50 transition">
-            <td class="p-2">${stu.year}</td>
-            <td class="p-2 font-bold text-slate-800">${stu.name}</td>
-            <td class="p-2 text-center">${stu.gender}</td>
-            <td class="p-2 text-center">${stu.class}</td>
-            <td class="p-2 font-semibold text-emerald-600">${Number(stu.amount).toLocaleString()} ៛</td>
-            <td class="p-2 font-bold text-blue-600">${Number(stu.fullFee).toLocaleString()} ៛</td>
-            <td class="p-2 ${remClass}">${Number(stu.remaining).toLocaleString()} ៛</td>
-            <td class="p-2 text-center"><span class="px-2 py-1 rounded-md font-bold text-[10px] ${statusClass}">${statusText}</span></td>
-            <td class="p-2 text-center">${acts}</td>
-          </tr>`;
+          tbody.innerHTML += `<tr class="border-b hover:bg-blue-50 transition"><td class="p-2">${stu.year}</td><td class="p-2 font-bold text-slate-800">${stu.name}</td><td class="p-2 text-center">${stu.gender}</td><td class="p-2 text-center">${stu.class}</td><td class="p-2 font-semibold text-emerald-600">${Number(stu.amount).toLocaleString()} ៛</td><td class="p-2 font-bold text-blue-600">${Number(stu.fullFee).toLocaleString()} ៛</td><td class="p-2 ${remClass}">${Number(stu.remaining).toLocaleString()} ៛</td><td class="p-2 text-center"><span class="px-2 py-1 rounded-md font-bold text-[10px] ${statusClass}">${statusText}</span></td><td class="p-2 text-center">${acts}</td></tr>`;
         });
-      }
+      }      
       function calculateRemainingHint() {
         var full = Number(document.getElementById('fullYearFee').value) || 0, actual = Number(document.getElementById('amount').value) || 0;
         var rem = full - actual, hint = document.getElementById('amountHint');
