@@ -93,18 +93,17 @@
   </div>
 
   <script>
-    // ⚠️ សូមប្តូរ URL ខាងក្រោមនេះទៅជា Web App URL របស់អ្នក!
-    const API_URL = "https://script.google.com/macros/s/AKfycbyrRHSVooKBn6InZowdiqCBHjy6fPZCcfujzGz0FUyd67nmvzTifAkVAd5yw050uHGx/exec"; 
+    // ⚠️ ទីនេះ! សូមយក Link Web App ថ្មីដែលបានពីការ Deploy មកដាក់ជំនួសខាងក្រោមនេះ៖
+    const API_URL = "https://script.google.com/macros/s/AKfycbxKVEi1Nol7NUyhikwCqJJqmCV5u5Wxd0FXSzLB7ojM0GAI1B3cJwq-nQX8y6RVC_Np/exec"; 
     
     let classData = {};
     let currentStudents = []; 
 
-    async function callBackend(action, data = {}) {
+    // 👉 កែសម្រួល៖ ប្រើ GET Method ជំនួសឱ្យ POST ដើម្បីបញ្ចៀសបញ្ហា CORS លើ Vercel
+    async function callBackend(action) {
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action: action, data: data })
-        });
+        let url = API_URL + "?action=" + action;
+        const response = await fetch(url);
         return await response.json();
       } catch (err) {
         alert("កំហុស៖ មិនអាចភ្ជាប់ទៅកាន់ Server បានទេ!");
@@ -115,10 +114,12 @@
     async function fetchData() {
       document.getElementById('classSelector').innerHTML = `<option value="">⏳ កំពុងទាញយកទិន្នន័យ...</option>`;
       const data = await callBackend("getClassMonitoringData");
-      if(data) {
+      if(data && !data.error) {
         classData = data;
         calculateSchoolWideTotals(classData);
         populateClassDropdown();
+      } else {
+        document.getElementById('classSelector').innerHTML = `<option value="">❌ បរាជ័យក្នុងការភ្ជាប់</option>`;
       }
     }
 
@@ -202,20 +203,26 @@
           
         const bgClass = isPaid ? "bg-white" : "bg-rose-50/30"; 
 
-        // រៀបចំប៊ូតុងទាក់ទង
+        // 👉 កែសម្រួល៖ ជួសជុលលេខទូរសព្ទបាត់លេខ ០ ខាងដើម និង Telegram
         let contactBtns = "";
-        if (stu.phone) {
-          // បំប្លែងជាអក្សរ រួចលុបដកឃ្លា ឬសញ្ញាដក (-) ចោលទាំងអស់
-          let telCode = String(stu.phone).replace(/[\s\-]/g, ''); 
-          if(telCode.startsWith('0')) telCode = '+855' + telCode.substring(1);
+        let phoneStr = stu.phone ? String(stu.phone).trim() : "";
+        
+        if (phoneStr !== "" && phoneStr !== "មិនមាន" && phoneStr !== "0") {
+          // បញ្ចូលលេខ ០ ប្រសិនបើវាបាត់
+          if (!phoneStr.startsWith('0')) {
+              phoneStr = '0' + phoneStr; 
+          }
+            
+          let cleanPhone = phoneStr.replace(/[\s\-]/g, ''); 
+          let tgPhone = '+855' + cleanPhone.substring(1); // សម្រាប់ Telegram
 
           contactBtns = `
             <div class="flex gap-2 mt-2">
-              <a href="tel:${stu.phone}" class="flex items-center gap-1 bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-[10px] font-semibold transition shadow-sm">
+              <a href="tel:${cleanPhone}" class="flex items-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-semibold transition shadow-sm">
                 📞 ហៅចេញ
               </a>
-              <a href="https://t.me/${telCode}" target="_blank" class="flex items-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-[10px] font-semibold transition shadow-sm">
-                ✈️ Telegram
+              <a href="https://t.me/${tgPhone}" target="_blank" class="flex items-center gap-1 bg-sky-500 hover:bg-sky-600 text-white px-2 py-1 rounded text-[10px] font-semibold transition shadow-sm">
+                💬 Telegram
               </a>
             </div>
           `;
