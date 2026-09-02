@@ -255,9 +255,13 @@
       function updateDashboard() {
         callBackend('getDashboardData').then(stats => {
           if (!stats || stats.error) return showToast((stats && stats.message) || 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យ!', 'error');
-          // Backend រាប់តាម Student ID រួចហើយ ដូច្នេះ frontend មិនរាប់ជួរដេកស្ទួនម្ដងទៀតទេ។
+          
           document.getElementById('cardTotalPaid').innerText = Number(stats.totalPaid || 0) + " នាក់";
           document.getElementById('cardTotalFemale').innerText = Number(stats.totalFemale || 0) + " នាក់";
+          // បន្ថែមបន្ទាត់២នេះ ដើម្បីឲ្យទិន្នន័យបញ្ចុះតម្លៃ និងលើកលែងបង្ហាញ
+          document.getElementById('cardTotalDiscounted').innerText = Number(stats.totalDiscounted || 0) + " នាក់";
+          document.getElementById('cardTotalExempted').innerText = Number(stats.totalExempted || 0) + " នាក់";
+          
           document.getElementById('cardRevenue').innerText = stats.totalRevenue || '0 KHR';
           allStudentsCache = Array.isArray(stats.students) ? stats.students : [];
           renderTableRows(allStudentsCache);
@@ -285,16 +289,14 @@
           var remClass = stu.remaining > 0 ? "text-red-500 font-bold" : "text-gray-400";
           
           var contactBtns = "";
-          // 👉 ជួសជុលបញ្ហាលេខទូរសព្ទបាត់លេខ ០ និង Telegram
           var phoneStr = stu.phone ? String(stu.phone).trim() : "";
           if (phoneStr !== "" && phoneStr !== "មិនមាន" && phoneStr !== "0") {
-            // ប្រសិនបើលេខមិនផ្តើមដោយ ០ ទេ យើងបន្ថែម ០ ឲ្យវាវិញ
             if (!phoneStr.startsWith('0')) {
                 phoneStr = '0' + phoneStr; 
             }
             
             var cleanPhone = phoneStr.replace(/[\s\-]/g, '');
-            var tgPhone = '+855' + cleanPhone.substring(1); // បំប្លែងទៅលេខកូដប្រទេស +855
+            var tgPhone = '+855' + cleanPhone.substring(1); 
             
             contactBtns += `<a href="tel:${cleanPhone}" title="ខលទូរសព្ទ" class="mx-1 text-emerald-600 hover:scale-125 transition inline-block text-lg no-underline">📞</a>`;
             contactBtns += `<a href="https://t.me/${tgPhone}" target="_blank" title="Telegram" class="mx-1 text-sky-500 hover:scale-125 transition inline-block text-lg no-underline">💬</a>`;
