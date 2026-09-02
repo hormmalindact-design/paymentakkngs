@@ -124,30 +124,18 @@
     }
 
     function calculateSchoolWideTotals(data) {
+      // រាប់សិស្សទាំងអស់ដែលមានក្នុងទិន្នន័យ ទោះបី paidAmt = 0 ក៏ដោយ។
       // Backend បាន aggregate តាម Student ID រួចហើយ។
-      // Map ម្តងទៀតនៅ frontend ដើម្បីការពារករណី class data មាន ID ស្ទួន។
-      const unique = new Map();
+      let grandTotalStudents = 0;
+      let grandTotalRevenue = 0;
       for (const className in data) {
-        (data[className] || []).forEach(stu => {
-          const key = String(stu.id || stu.studentId || stu.name || '').trim().toUpperCase();
-          // getClassMonitoringData ចាស់មិនផ្ញើ ID ដូច្នេះសម្រាប់ version ថ្មី
-          // ប្រើ name + class ជា fallback។
-          const safeKey = key || (String(stu.name || '').trim().toLowerCase() + '|' + className.toLowerCase());
-          if (!unique.has(safeKey)) unique.set(safeKey, {...stu});
-          else {
-            const old = unique.get(safeKey);
-            old.paidAmt = Number(old.paidAmt || 0) + Number(stu.paidAmt || 0);
-            old.fullFee = Math.max(Number(old.fullFee || 0), Number(stu.fullFee || 0));
-            old.remaining = Math.max(0, old.fullFee - old.paidAmt);
-          }
+        const students = Array.isArray(data[className]) ? data[className] : [];
+        students.forEach(stu => {
+          grandTotalStudents++;
+          grandTotalRevenue += Number(stu.paidAmt || 0);
         });
       }
-      let grandTotalPaidStudents = 0, grandTotalRevenue = 0;
-      unique.forEach(stu => {
-        const paid = Number(stu.paidAmt || 0);
-        if (paid > 0) { grandTotalPaidStudents++; grandTotalRevenue += paid; }
-      });
-      document.getElementById('schoolTotalPaidStudents').innerText = grandTotalPaidStudents + " នាក់";
+      document.getElementById('schoolTotalPaidStudents').innerText = grandTotalStudents + " នាក់";
       document.getElementById('schoolTotalRevenue').innerText = grandTotalRevenue.toLocaleString() + " ៛";
     }
 
