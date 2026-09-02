@@ -62,8 +62,8 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-2xl shadow-sm text-white"><p class="text-[10px] uppercase font-semibold">សិស្សបានបង់ប្រាក់សរុប</p><h3 id="cardTotalPaid" class="text-2xl font-bold mt-1">0 នាក់</h3></div>
-        <div class="bg-gradient-to-br from-pink-500 to-rose-600 p-5 rounded-2xl shadow-sm text-white"><p class="text-[10px] uppercase font-semibold">សិស្សស្រីបង់ប្រាក់</p><h3 id="cardTotalFemale" class="text-2xl font-bold mt-1">0 នាក់</h3></div>
+        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 p-5 rounded-2xl shadow-sm text-white"><p class="text-[10px] uppercase font-semibold">សិស្សក្នុងប្រព័ន្ធសរុប</p><h3 id="cardTotalPaid" class="text-2xl font-bold mt-1">0 នាក់</h3></div>
+        <div class="bg-gradient-to-br from-pink-500 to-rose-600 p-5 rounded-2xl shadow-sm text-white"><p class="text-[10px] uppercase font-semibold">សិស្សស្រីសរុប</p><h3 id="cardTotalFemale" class="text-2xl font-bold mt-1">0 នាក់</h3></div>
         <div class="bg-gradient-to-br from-orange-500 to-amber-600 p-5 rounded-2xl shadow-sm text-white"><p class="text-[10px] uppercase font-semibold">សិស្សបញ្ចុះតម្លៃសរុប</p><h3 id="cardTotalDiscounted" class="text-2xl font-bold mt-1">0 នាក់</h3></div>
         <div class="bg-gradient-to-br from-purple-500 to-indigo-600 p-5 rounded-2xl shadow-sm text-white"><p class="text-[10px] uppercase font-semibold">សិស្សក្រីក្រ/លើកលែង</p><h3 id="cardTotalExempted" class="text-2xl font-bold mt-1">0 នាក់</h3></div>
         <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-2xl shadow-sm text-white sm:col-span-2 md:col-span-1"><p class="text-[10px] uppercase font-semibold">ថវិកាប្រមូលបានសរុប</p><h3 id="cardRevenue" class="text-xl font-bold mt-2">0 KHR</h3></div>
@@ -254,9 +254,13 @@
 
       function updateDashboard() {
         callBackend('getDashboardData').then(stats => {
-          if(stats.error) return showToast(stats.message, 'error');
-          document.getElementById('cardTotalPaid').innerText = stats.totalPaid + " នាក់"; document.getElementById('cardTotalFemale').innerText = stats.totalFemale + " នាក់"; document.getElementById('cardRevenue').innerText = stats.totalRevenue;
-          allStudentsCache = stats.students || []; renderTableRows(allStudentsCache);
+          if (!stats || stats.error) return showToast((stats && stats.message) || 'មានបញ្ហាក្នុងការទាញយកទិន្នន័យ!', 'error');
+          // Backend រាប់តាម Student ID រួចហើយ ដូច្នេះ frontend មិនរាប់ជួរដេកស្ទួនម្ដងទៀតទេ។
+          document.getElementById('cardTotalPaid').innerText = Number(stats.totalPaid || 0) + " នាក់";
+          document.getElementById('cardTotalFemale').innerText = Number(stats.totalFemale || 0) + " នាក់";
+          document.getElementById('cardRevenue').innerText = stats.totalRevenue || '0 KHR';
+          allStudentsCache = Array.isArray(stats.students) ? stats.students : [];
+          renderTableRows(allStudentsCache);
         });
       }
 
