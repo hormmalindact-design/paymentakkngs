@@ -198,7 +198,7 @@
         <div class="text-center">
           <p class="mb-2">ធ្វើនៅ.................., ថ្ងៃទី.........ខែ.........ឆ្នាំ២០២...</p>
           <p class="mb-16 font-muol">បេឡាអ្នករៀបចំរបាយការណ៍</p>
-          <p class="font-bold text-blue-800 text-base" id="rptCashierName">................................</p>
+          <p class="text-slate-400">......................................................</p>
         </div>
       </div>
     </div>
@@ -414,7 +414,7 @@
           
           document.getElementById('rptTitle').innerText = "របាយការណ៍បិទបញ្ជីបេឡាប្រចាំថ្ងៃ";
           document.getElementById('rptDate').innerText = report.date;
-          document.getElementById('rptCashierName').innerText = currentUserRoleName || "................................";
+         
           
           document.getElementById('rptTx').innerText = report.totalTx;
           document.getElementById('rptCash').innerText = report.cashTotal.toLocaleString();
@@ -465,7 +465,7 @@
           
           document.getElementById('rptTitle').innerText = "របាយការណ៍បិទបញ្ជីបេឡាប្រចាំខែ";
           document.getElementById('rptDate').innerText = report.monthStr;
-          document.getElementById('rptCashierName').innerText = currentUserRoleName || "................................";
+          
           
           document.getElementById('rptTx').innerText = report.totalTx;
           document.getElementById('rptCash').innerText = report.cashTotal.toLocaleString();
